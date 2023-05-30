@@ -33,10 +33,13 @@ impl std::fmt::Display for CrossbeamReceiverError {
         }
     }
 }
+
+#[derive(Clone)]
 pub struct CrossbeamReceiver<T: Send> {
     receiver: crossbeam_channel::Receiver<T>,
 }
 
+#[derive(Clone)]
 pub struct CrossbeamSender<T: Send> {
     sender: crossbeam_channel::Sender<T>,
 }
