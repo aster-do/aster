@@ -1,0 +1,35 @@
+name: release
+
+on:
+  create:
+    tags:
+      - "v*"
+    branches:
+      - main
+
+env:
+  CARGO_TERM_COLOR: always
+
+permissions:
+  contents: write
+
+jobs:
+  upload-github-assets:
+    name: build-${{ matrix.target }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ["x86_64-unknown-linux-gnu", "x86_64-unknown-linux-musl"]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install rust toolchain & make release
+        uses: taiki-e/upload-rust-binary-action@v1
+        with:
+          bin: aster
+          target: ${{ matrix.target }}
+          archive: aster-$target
+          checksum: md5
+          token: ${{ secrets.GITHUB_TOKEN }}
