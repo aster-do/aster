@@ -1,6 +1,7 @@
 use chrono::Utc;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, PartialOrd)]
 pub struct Metric {
     pub corelation_id: Option<String>,
     pub name: String,
