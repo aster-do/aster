@@ -84,7 +84,11 @@ dependencies = [
  "async-trait",
  "chrono",
  "common",
+<<<<<<< refs/remotes/origin/main
 >>>>>>> feat: create base `alerting` structure
+=======
+ "notification",
+>>>>>>> feat: create base `notification` structure
 ]
 
 [[package]]
@@ -2706,10 +2710,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "497961ef93d974e23eb6f433eb5fe1b7930b659f06d12dec6fc44a8f554c0bba"
 
 [[package]]
+<<<<<<< refs/remotes/origin/main
 name = "ucd-trie"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9e79c4d996edb816c91e4308506774452e55e95c3c9de07b6729e17e15a5ef81"
+=======
+name = "notification"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "common",
+]
+>>>>>>> feat: create base `notification` structure
 
 [[package]]
 name = "uncased"
