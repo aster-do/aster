@@ -1,0 +1,17 @@
+version: '3.7'
+
+services:
+  postgres:
+    image: bitnami/postgresql:14.1.0-debian-10-r31
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres:/bitnami/postgresql
+    environment:
+      - POSTGRESQL_USER=postgres
+      - POSTGRESQL_PASSWORD=postgres
+      - POSTGRESQL_DATABASE=postgres
+
+volumes:
+  postgres:
