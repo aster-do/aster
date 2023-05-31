@@ -1,0 +1,18 @@
+# Misc files
+.vscode/
+.git
+examples/
+.gitingore
+.gitmodules
+docker-compose.yml
+Dockerfile
+LICENSE
+README.md
+
+# Backend files
+Cargo.lock
+target/
+
+# Frontend files
+frontend/node_modules/
+frontend/build/
