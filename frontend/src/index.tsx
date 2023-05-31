@@ -4,12 +4,13 @@ import './index.css';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import reportWebVitals from './reportWebVitals';
 import AppLayout from './common/components/AppLayout';
-import getRoutes from './common/navigation';
+import getRoutes, { navigationRoutes } from './common/navigation';
+import { AccountContextProvider } from './common/contexts/AccountContext';
 
 const router = createBrowserRouter([
   {
     path: '',
-    element: <AppLayout />,
+    element: <AppLayout routes={navigationRoutes} />,
     children: getRoutes(),
   },
 ]);
@@ -19,7 +20,9 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <AccountContextProvider>
+      <RouterProvider router={router} />
+    </AccountContextProvider>
   </React.StrictMode>
 );
 
