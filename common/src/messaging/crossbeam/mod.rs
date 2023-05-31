@@ -62,3 +62,45 @@ impl<T: Send> AsyncSender<T, CrossbeamSenderError> for CrossbeamSender<T> {
             .map_err(|_| CrossbeamSenderError::ChannelDisconnected)
     }
 }
+
+pub struct CrossbeamMessagingFactory {
+    billable_sender: crossbeam_channel::Sender<crate::models::Billable>,
+    billable_receiver: crossbeam_channel::Receiver<crate::models::Billable>,
+    metric_sender: crossbeam_channel::Sender<crate::models::Metric>,
+    metric_receiver: crossbeam_channel::Receiver<crate::models::Metric>,
+}
+
+impl CrossbeamMessagingFactory {}
+
+impl Default for CrossbeamMessagingFactory {
+    fn default() -> Self {
+        let (billable_sender, billable_receiver) = crossbeam_channel::unbounded();
+        let (metric_sender, metric_receiver) = crossbeam_channel::unbounded();
+
+        Self {
+            billable_sender,
+            billable_receiver,
+            metric_sender,
+            metric_receiver,
+        }
+    }
+}
+
+#[async_trait]
+impl super::MessagingFactory for CrossbeamMessagingFactory {
+    async fn create_billable_sender(&self) -> BillableSender {
+        BillableSender::new(self.billable_sender.clone())
+    }
+
+    async fn create_billable_receiver(&self) -> BillableReceiver {
+        BillableReceiver::new(self.billable_receiver.clone())
+    }
+
+    async fn create_metric_sender(&self) -> MetricSender {
+        MetricSender::new(self.metric_sender.clone())
+    }
+
+    async fn create_metric_receiver(&self) -> MetricReceiver {
+        MetricReceiver::new(self.metric_receiver.clone())
+    }
+}
