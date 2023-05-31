@@ -1,6 +1,7 @@
+use common::models::billable_rule::{BillableOperation, BillableRule};
 use common::models::{Billable, Metric};
 
-pub fn transform(metric: &Metric) -> Billable {
+pub fn transform(metric: &Metric, rules: Vec<BillableRule>) -> Billable {
     let mut bill = Billable {
         price: 0,
         name: metric.name.clone(),
@@ -8,15 +9,17 @@ pub fn transform(metric: &Metric) -> Billable {
         timestamp: metric.timestamp,
     };
 
-    bill.price = match metric.name.as_str() {
-        // CPU Memory and Disk are just here as examples
-        // The next step will be to remove them to allow
-        // users to define their own rules and metrics types
-        "cpu" => (bill.value * 200.) as i64,
-        "memory" => bill.value as i64,
-        "disk" => 1000,
-        _ => 0,
-    };
+    for rule in rules {
+        if rule.name == metric.name {
+            bill.price = match rule.operation {
+                BillableOperation::Add => (metric.value + rule.number as f64) as i64,
+                BillableOperation::Subtract => (metric.value - rule.number as f64) as i64,
+                BillableOperation::Multiply => (metric.value * rule.number as f64) as i64,
+                BillableOperation::Divide => (metric.value / rule.number as f64) as i64,
+            };
+            break;
+        }
+    }
 
     bill
 }
@@ -34,10 +37,45 @@ mod tests {
             timestamp: chrono::Utc::now(),
         };
 
-        let billable = transform(&metric);
+        let rules = get_rules();
+
+        let billable = transform(&metric, rules);
 
         assert_eq!(billable.name, "cpu");
         assert_eq!(billable.value, 1.0);
         assert_eq!(billable.price, 200);
+    }
+
+    #[test]
+    fn memory_conversion() {
+        let metric = Metric {
+            corelation_id: None,
+            name: "memory".to_string(),
+            value: 1.0,
+            timestamp: chrono::Utc::now(),
+        };
+
+        let rules = get_rules();
+
+        let billable = transform(&metric, rules);
+
+        assert_eq!(billable.name, "memory");
+        assert_eq!(billable.value, 1.0);
+        assert_eq!(billable.price, 0);
+    }
+
+    fn get_rules() -> Vec<BillableRule> {
+        vec![
+            BillableRule {
+                name: "cpu".to_string(),
+                operation: BillableOperation::Multiply,
+                number: 200,
+            },
+            BillableRule {
+                name: "memory".to_string(),
+                operation: BillableOperation::Multiply,
+                number: 0,
+            },
+        ]
     }
 }
