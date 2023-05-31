@@ -1,37 +1,20 @@
 use std::fmt::Debug;
 
 use async_trait::async_trait;
+use thiserror::Error;
 
 use super::{AsyncReceiver, AsyncSender};
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum CrossbeamSenderError {
+    #[error("Channel disconnected")]
     ChannelDisconnected,
 }
 
-impl std::error::Error for CrossbeamSenderError {}
-
-impl std::fmt::Display for CrossbeamSenderError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            CrossbeamSenderError::ChannelDisconnected => write!(f, "Channel was disconnected"),
-        }
-    }
-}
-
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum CrossbeamReceiverError {
+    #[error("ReceiveError {0}")]
     ReceiveError(crossbeam_channel::RecvError),
-}
-
-impl std::error::Error for CrossbeamReceiverError {}
-
-impl std::fmt::Display for CrossbeamReceiverError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            CrossbeamReceiverError::ReceiveError(e) => write!(f, "ReceiveError {}", e),
-        }
-    }
 }
 
 #[derive(Clone)]
@@ -66,7 +49,7 @@ impl<T: Send> CrossbeamSender<T> {
 }
 
 #[async_trait]
-impl<T: Send + Debug> AsyncSender<T, CrossbeamSenderError> for CrossbeamSender<T> {
+impl<T: Send> AsyncSender<T, CrossbeamSenderError> for CrossbeamSender<T> {
     async fn send(&mut self, message: T) -> Result<(), CrossbeamSenderError> {
         self.sender
             .send(message)
