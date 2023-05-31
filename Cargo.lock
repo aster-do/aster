@@ -69,6 +69,7 @@ dependencies = [
 name = "alerting"
 version = "0.1.0"
 dependencies = [
+<<<<<<< refs/remotes/origin/main
  "anyhow",
  "async-graphql",
  "async-graphql-axum",
@@ -79,6 +80,11 @@ dependencies = [
  "log",
  "notification",
  "tokio",
+=======
+ "async-trait",
+ "chrono",
+ "common",
+>>>>>>> feat: create base `alerting` structure
 ]
 
 [[package]]
