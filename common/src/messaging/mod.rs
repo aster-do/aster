@@ -1,8 +1,8 @@
 use async_trait::async_trait;
 
-mod crossbeam_messaging;
+pub mod crossbeam;
 
-pub use crossbeam_messaging::{CrossbeamReceiver, CrossbeamSender};
+pub use crossbeam::{CrossbeamReceiver, CrossbeamSender};
 
 #[async_trait]
 pub trait AsyncReceiver<T, E: std::error::Error> {
