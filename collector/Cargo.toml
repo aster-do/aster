@@ -6,3 +6,15 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+common = { path = "../common" }
+axum = "0.6.18"
+axum-macros = "0.3.7"
+tokio = { version = "1.28.2", features = ["rt-multi-thread", "macros"] }
+serde = { version = "1.0.163", features = ["derive"] }
+serde_json = "1.0.96"
+log = "0.4.18"
+chrono = {version = "0.4.26", features= ["serde"] }
+async-trait = "0.1.51"
+crossbeam-channel = "0.5.1"
+thiserror = "1.0.40"
+anyhow = "1.0.71"
