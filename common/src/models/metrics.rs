@@ -2,8 +2,8 @@ use chrono::Utc;
 
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 pub struct Metric {
-    corelation_id: Option<String>,
-    name: String,
-    timestamp: chrono::DateTime<Utc>,
-    value: f64,
+    pub corelation_id: Option<String>,
+    pub name: String,
+    pub timestamp: chrono::DateTime<Utc>,
+    pub value: f64,
 }
