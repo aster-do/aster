@@ -5,7 +5,7 @@ import InvoiceRoutes from '../../invoice/Routes';
 import MetricsRoutes from '../../metrics/Routes';
 import NotifierRoutes from '../../notifier/Routes';
 
-const navigationRoutes: NavigationRoute[] = [
+export const navigationRoutes: NavigationRoute[] = [
   DashboardRoutes,
   InvoiceRoutes,
   MetricsRoutes,
