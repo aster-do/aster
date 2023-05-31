@@ -1,0 +1,10 @@
+source ~/.cargo/env
+
+echo '+cargo build --all'
+cargo build --all
+
+echo '+cargo clippy --all --no-deps -- -D warnings'
+cargo clippy --all --no-deps -- -D warnings
+
+echo '+cargo fmt --all -- --check --config format_code_in_doc_comments=true'
+cargo fmt --all -- --check --config format_code_in_doc_comments=true

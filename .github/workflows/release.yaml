@@ -9,6 +9,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  CARGO_HUSKY_DONT_INSTALL_HOOKS: true
 
 permissions:
   contents: write

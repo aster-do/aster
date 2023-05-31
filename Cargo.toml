@@ -12,3 +12,4 @@ members = [
     "dashboard",
     "notification",
 ]
+default-members = ["aster"]
