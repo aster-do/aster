@@ -60,7 +60,12 @@ export default function Navbar({ routes }: NavbarProps) {
                 route.roles.includes(account.role) && route.navbarVisible
             )
             .map((route) => (
-              <Stack direction="column" spacing={0} sx={{ my: 1 }}>
+              <Stack
+                direction="column"
+                spacing={0}
+                sx={{ my: 1 }}
+                key={route.path}
+              >
                 <Link
                   to={`/${route.path}`}
                   style={{
@@ -104,6 +109,7 @@ export default function Navbar({ routes }: NavbarProps) {
                             textDecoration: 'none',
                             color: palette.text.primary,
                           }}
+                          key={subRoute.path}
                         >
                           <ListItemButton
                             sx={{
