@@ -11,5 +11,6 @@ members = [
     "controller",
     "dashboard",
     "notification",
+    "frontend_server"
 ]
 default-members = ["aster"]
