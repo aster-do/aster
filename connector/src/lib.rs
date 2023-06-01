@@ -27,8 +27,6 @@ enum ConnectorServiceError {
 
 #[async_trait]
 impl AsterService for ConnectorService {
-    const SERVICE_PORT: u16 = 0;
-
     async fn init(
         &mut self,
         messaging: &mut CrossbeamMessagingFactory,

@@ -15,8 +15,6 @@ pub struct NotificationInterface {
 //TODO Implement AsterService trait
 #[async_trait]
 impl AsterService for NotificationInterface {
-    const SERVICE_PORT: u16 = 0;
-
     async fn init(
         &mut self,
         _: &mut common::messaging::crossbeam::CrossbeamMessagingFactory,

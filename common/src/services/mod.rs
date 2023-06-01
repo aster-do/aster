@@ -13,8 +13,6 @@ pub enum AsterServiceError {
 
 #[async_trait]
 pub trait AsterService {
-    const SERVICE_PORT: u16;
-
     async fn init(
         &mut self,
         messaging: &mut CrossbeamMessagingFactory,
