@@ -16,6 +16,7 @@ async fn main() -> Result<(), anyhow::Error> {
         Box::<frontend_server::FrontendServer>::default(),
         Box::<BillingService>::default(),
         Box::<dashboard::DashboardServer>::default(),
+        Box::<connector::ConnectorService>::default(),
     ];
 
     info!("Init services");

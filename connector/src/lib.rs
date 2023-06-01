@@ -9,7 +9,7 @@ use sqlx::{postgres::PgPoolOptions, PgPool};
 use thiserror::Error;
 
 #[derive(Clone, Default)]
-struct ConnectorService {
+pub struct ConnectorService {
     state: Option<ConnectorServiceState>,
 }
 
