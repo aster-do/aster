@@ -9,6 +9,14 @@ version = "0.1.0"
 [[package]]
 name = "alerting"
 version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "chrono",
+ "common",
+ "log",
+ "notification",
+]
 
 [[package]]
 name = "android-tzdata"
@@ -35,7 +43,6 @@ checksum = "9c7d0618f0e0b7e8ff11427422b64564d5fb0be1940354bfe2e0529b18a9d9b8"
 name = "aster"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "cargo-husky",
 ]
 
@@ -206,6 +213,13 @@ checksum = "518ef76f2f87365916b142844c16d8fefd85039bc5699050210a7778ee1cd1de"
 [[package]]
 name = "notification"
 version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "chrono",
+ "common",
+ "log",
+]
 
 [[package]]
 name = "num-traits"

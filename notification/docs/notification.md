@@ -5,7 +5,7 @@
 ```rust
 struct NotificationChannel {
     name: String,
-    channelType: ChannelType,
+    channel_type: ChannelType,
     recipient: String, // email, phone number, webhook url, etc.
 }
 
@@ -21,12 +21,12 @@ enum ChannelType {
 
 ```rust
 struct Notification {
-    notificationChannelId: String,
-    status: Status,
+    notification_channel_id: String,
+    status: NotificationStatus,
 }
 
-enum Status {
-    Sent(u64), // timestamp
-    Failed(u64), // timestamp
+enum NotificationStatus {
+    Sent(DateTime<Utc>),   // timestamp
+    Failed(DateTime<Utc>), // timestamp
 }
 ```
