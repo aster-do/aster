@@ -23,6 +23,7 @@ dependencies = [
  "log",
  "sqlx",
  "tokio",
+ "uuid",
 ]
 
 [[package]]
