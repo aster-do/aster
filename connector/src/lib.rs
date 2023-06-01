@@ -19,7 +19,7 @@ struct ConnectorService {
 #[derive(Clone)]
 struct ConnectorServiceState {
     billable_receiver: BillableReceiver,
-    // postgres_pool: PgPool,
+    postgres_pool: PgPool,
 }
 
 #[async_trait]
@@ -36,8 +36,8 @@ impl AsterService for ConnectorService {
         let x = lock.create_billable_receiver();
 
         self.state = Some(ConnectorServiceState {
-            billable_receiver: x.clone(),
-            // postgres_pool,
+            billable_receiver: x,
+            postgres_pool,
         });
     }
 
