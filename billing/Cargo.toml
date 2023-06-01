@@ -13,3 +13,4 @@ axum = "0.6.18"
 tokio = { version = "1.28.2", features = ["macros", "rt-multi-thread"]}
 async-trait = "0.1.51"
 log = "0.4.18"
+anyhow = "1.0.71"

@@ -8,7 +8,7 @@ use axum::{
     routing::get,
     Router, Server,
 };
-use common::{messaging::MessagingFactory, services::AsterService};
+use common::{messaging::crossbeam::CrossbeamMessagingFactory, services::AsterService};
 use log::info;
 
 pub struct BillingService;
@@ -27,14 +27,18 @@ impl Default for BillingService {
 
 #[async_trait]
 impl AsterService for BillingService {
-    async fn init(&mut self, _: &mut dyn MessagingFactory) {
+    async fn init(&mut self, _: &mut CrossbeamMessagingFactory) -> Result<(), anyhow::Error> {
         info!("Initializing the billing service...");
         // TODO
+
+        Ok(())
     }
 
-    async fn run(&mut self) {
+    async fn run(&mut self) -> Result<(), anyhow::Error> {
         info!("Starting the billing service...");
         run().await;
+
+        Ok(())
     }
 }
 
@@ -53,9 +57,9 @@ pub async fn run() {
         .route("/", get(graphiql).post(graphql_handler))
         .layer(Extension(schema));
 
-    info!("GraphiQL IDE: http://localhost:8000");
+    info!("GraphiQL IDE: http://localhost:3033");
 
-    Server::bind(&"127.0.0.1:8000".parse().unwrap())
+    Server::bind(&"127.0.0.1:3033".parse().unwrap())
         .serve(app.into_make_service())
         .await
         .unwrap();

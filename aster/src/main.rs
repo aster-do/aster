@@ -1,3 +1,4 @@
+use billing::services::BillingService;
 use common::{services::AsterServiceError, AsterService};
 use log::info;
 
@@ -11,8 +12,10 @@ async fn main() -> Result<(), anyhow::Error> {
 
     // Create and init here
     info!("Initializing services");
-    let mut services: Vec<Box<dyn AsterService>> =
-        vec![Box::<frontend_server::FrontendServer>::default()];
+    let mut services: Vec<Box<dyn AsterService>> = vec![
+        Box::<frontend_server::FrontendServer>::default(),
+        Box::<BillingService>::default(),
+    ];
 
     info!("Init services");
     for service in services.iter_mut() {
