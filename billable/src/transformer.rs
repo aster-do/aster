@@ -1,5 +1,5 @@
 use common::models::{
-    billable_rule::{BillableOperation, BillableRule},
+    billable_rules::billable_rule::{BillableOperation, BillableRule},
     Billable, Metric,
 };
 

@@ -1,5 +1,5 @@
 pub mod billable;
-pub mod billable_rule;
+pub mod billable_rules;
 pub mod metrics;
 
 pub use billable::Billable;
