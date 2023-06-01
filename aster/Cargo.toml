@@ -21,6 +21,8 @@ connector = { path = "../connector" }
 controller = { path = "../controller" }
 dashboard = { path = "../dashboard" }
 notification = { path = "../notification" }
+frontend_server = { path = "../frontend_server" }
+anyhow = "1.0.71"
 
 [dev-dependencies.cargo-husky]
 version = "1"

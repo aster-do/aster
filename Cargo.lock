@@ -76,6 +76,7 @@ version = "0.1.0"
 dependencies = [
  "aggregator",
  "alerting",
+ "anyhow",
  "billable",
  "billing",
  "cargo-husky",
@@ -85,6 +86,7 @@ dependencies = [
  "controller",
  "dashboard",
  "env_logger",
+ "frontend_server",
  "futures",
  "log",
  "notification",

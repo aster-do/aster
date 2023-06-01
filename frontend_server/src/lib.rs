@@ -8,6 +8,7 @@ use tower_http::services::{ServeDir, ServeFile};
 
 const SERVICE_PORT: u16 = 3030;
 
+#[derive(Default)]
 pub struct FrontendServer {
     frontend_files: String,
 }
