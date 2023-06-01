@@ -9,6 +9,14 @@ version = "0.1.0"
 [[package]]
 name = "alerting"
 version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "chrono",
+ "common",
+ "log",
+ "notification",
+]
 
 [[package]]
 name = "android-tzdata"
@@ -460,6 +468,13 @@ dependencies = [
 [[package]]
 name = "notification"
 version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "chrono",
+ "common",
+ "log",
+]
 
 [[package]]
 name = "num-traits"

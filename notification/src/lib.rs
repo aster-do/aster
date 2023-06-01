@@ -1,14 +1,35 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
+use anyhow::{Ok, Result};
+use async_trait::async_trait;
+use common::AsterService;
+use log::debug;
+
+mod controllers;
+pub mod models;
+pub mod services;
+
+pub struct NotificationInterface {
+    //Config & stateful info
+    channel_controller: controllers::channel::ChannelController,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+//TODO Implement AsterService trait
+#[async_trait]
+impl AsterService for NotificationInterface {
+    const SERVICE_PORT: u16 = 0;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+    async fn init(
+        &mut self,
+        _: &mut common::messaging::crossbeam::CrossbeamMessagingFactory,
+    ) -> Result<()> {
+        debug!("Initializing channel controller");
+        self.channel_controller = controllers::channel::ChannelController::new()?;
+
+        Ok(())
+    }
+
+    async fn run(&mut self) -> Result<()> {
+        debug!("Starting servers");
+        //TODO Start servers
+        Ok(())
     }
 }
