@@ -6,8 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-chrono = "0.4.26"
+chrono = { workspace = true }
 common = { path = "../common" }
-async-trait = "0.1.68"
-anyhow = "1.0.71"
-log = "0.4.18"
+async-trait = { workspace = true }
+anyhow = { workspace = true }
+log = { workspace = true }

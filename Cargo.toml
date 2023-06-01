@@ -14,3 +14,15 @@ members = [
     "frontend_server"
 ]
 default-members = ["aster"]
+
+
+[workspace.dependencies]  
+tokio = "1.28.2"
+anyhow = "1.0.71"
+async-trait = "0.1.68"
+chrono = "0.4.26"
+log = "0.4.18"
+crossbeam-channel = "0.5.8"
+sqlx =  "0.6.3" 
+axum = "0.6.18"
+thiserror = "1.0.40"
