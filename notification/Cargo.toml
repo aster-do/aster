@@ -11,3 +11,6 @@ common = { path = "../common" }
 async-trait = "0.1.68"
 anyhow = "1.0.71"
 log = "0.4.18"
+async-graphql = { version = "5.0.9", features = ["dynamic-schema"]}
+async-graphql-axum = "5.0.9"
+axum = "0.6.18"
