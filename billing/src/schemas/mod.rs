@@ -1,23 +1,10 @@
-use async_graphql::{EmptyMutation, EmptySubscription, Schema, SimpleObject, ID};
+mod structures;
 
-pub type BillingSchema = Schema<QueryRoot, EmptyMutation, EmptySubscription>;
+use async_graphql::{EmptySubscription, Schema, ID};
+use chrono::Utc;
+use structures::{Billing, BillingItem, BillingItemInput};
 
-#[derive(Clone, SimpleObject)]
-struct BillingItem {
-    id: ID,
-    name: String,
-    price: f64,
-    timestamp: i64,
-    value: f64,
-}
-
-#[derive(Clone, SimpleObject)]
-struct Billing {
-    id: ID,
-    generated_at: i64,
-    items: Vec<BillingItem>,
-    total_price: f64,
-}
+pub type BillingSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
 pub struct QueryRoot;
 
@@ -68,5 +55,33 @@ impl QueryRoot {
                 total_price: 1.0 + 3.9 * 2.0,
             },
         ]
+    }
+}
+
+pub struct MutationRoot;
+
+#[async_graphql::Object]
+impl MutationRoot {
+    async fn add_billing(&self, billing_items_input: Vec<BillingItemInput>) -> Billing {
+        let mut items = vec![];
+
+        let mut total_price = 0.0;
+        for billing_item in billing_items_input {
+            let billing_item = BillingItem::from(billing_item);
+
+            total_price += billing_item.price * billing_item.value;
+
+            items.push(billing_item);
+        }
+
+        let id = ID::from("1".to_string());
+        let generated_at = Utc::now().timestamp();
+
+        Billing {
+            id,
+            generated_at,
+            items,
+            total_price,
+        }
     }
 }
