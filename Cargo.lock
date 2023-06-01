@@ -554,6 +554,15 @@ dependencies = [
 [[package]]
 name = "dashboard"
 version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "axum",
+ "common",
+ "log",
+ "sqlx",
+ "tokio",
+]
 
 [[package]]
 name = "digest"
