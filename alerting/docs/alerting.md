@@ -5,12 +5,12 @@
 ```rust
 struct AlertingRule {
     name: String,
-    ruleType: RuleType,
-    metricName: String,
+    rule_type: RuleType,
+    metric_name: String,
     threshold: f64,
-    trigger: Trigger,
+    trigger: RuleTrigger,
     duration: u64,
-    notificationChannelIds: Vec<String>,
+    notification_channel_ids: Vec<String>,
 }
 
 enum RuleType {
@@ -18,7 +18,7 @@ enum RuleType {
     PriceBased,
 }
 
-enum Trigger {
+enum RuleTrigger {
     GreaterThan,
     LessThan,
     Equal,
@@ -30,14 +30,14 @@ enum Trigger {
 
 ```rust
 struct Alert {
-    alertingRuleId: String,
+    alerting_rule_id: String,
     value: f64,
-    status: Status,
-    notificationId: String,
+    status: AlertStatus,
+    notification_id: String,
 }
 
-enum Status {
-    Triggered(u64), // timestamp
-    Resolved(u64), // timestamp
+enum AlertStatus {
+    Triggered(DateTime<Utc>), // timestamp
+    Resolved(DateTime<Utc>),  // timestamp
 }
 ```
