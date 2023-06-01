@@ -11,3 +11,4 @@ crossbeam-channel = "0.5.1"
 thiserror = "1.0.40"
 chrono = "0.4.26"
 anyhow = "1.0.71"
+sqlx = { version = "0.6.3", features = [ "runtime-tokio-native-tls" ] }
