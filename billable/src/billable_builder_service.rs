@@ -33,10 +33,13 @@ impl AsterService for BillableBuilderService {
                 number: 3,
             },
         ];
+
+        log::info!("BillableBuilderService initialized");
         Ok(())
     }
 
     async fn run(&mut self) -> Result<(), anyhow::Error> {
+        log::info!("BillableBuilderService running");
         let metric_receiver = self.metric_receiver.clone().ok_or_else(|| {
             anyhow::anyhow!("Metric receiver not initialized. Did you forget to call init()?")
         })?;
