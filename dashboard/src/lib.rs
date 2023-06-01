@@ -20,7 +20,6 @@ impl AsterService for DashboardServer {
         let database_url = std::env::var("DATABASE_URL").context("DATABASE_URL not set")?;
 
         // create a connection pool
-
         self.pool = Some(
             PgPoolOptions::new()
                 .max_connections(5)
