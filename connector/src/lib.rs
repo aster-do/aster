@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use common::{
     messaging::{
@@ -7,6 +9,7 @@ use common::{
     AsterService,
 };
 use sqlx::{postgres::PgPoolOptions, PgPool};
+use tokio::sync::RwLock;
 
 #[derive(Clone, Default)]
 struct ConnectorService {
@@ -16,23 +19,25 @@ struct ConnectorService {
 #[derive(Clone)]
 struct ConnectorServiceState {
     billable_receiver: BillableReceiver,
-    postgres_pool: PgPool,
+    // postgres_pool: PgPool,
 }
 
 #[async_trait]
 impl AsterService for ConnectorService {
-    async fn init(&mut self, messaging: &mut CrossbeamMessagingFactory) {
-        // Connect to the database.
+    async fn init(&mut self, messaging: Arc<RwLock<dyn MessagingFactory>>) {
         let postgres_pool = PgPoolOptions::new()
             .max_connections(5)
             .connect("postgres://postgres:postgres@localhost/postgres")
             .await
             .unwrap();
 
-        // Create the billable receiver.
+        let lock = messaging.read().await;
+
+        let x = lock.create_billable_receiver();
+
         self.state = Some(ConnectorServiceState {
-            billable_receiver: messaging.create_billable_receiver().await,
-            postgres_pool,
+            billable_receiver: x.clone(),
+            // postgres_pool,
         });
     }
 

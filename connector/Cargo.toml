@@ -8,4 +8,5 @@ edition = "2021"
 [dependencies]
 common = { path = "../common" }
 async-trait = "0.1.51"
+tokio = { version = "1.0", features = ["full"] }
 sqlx = { version = "0.6.3", features = [ "runtime-tokio-native-tls", "postgres" ] }

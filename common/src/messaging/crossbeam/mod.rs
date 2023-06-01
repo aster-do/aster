@@ -86,21 +86,20 @@ impl Default for CrossbeamMessagingFactory {
     }
 }
 
-#[async_trait]
 impl super::MessagingFactory for CrossbeamMessagingFactory {
-    async fn create_billable_sender(&self) -> BillableSender {
-        BillableSender::new(self.billable_sender.clone())
+    fn create_billable_sender(&self) -> BillableSender {
+        self.billable_sender.clone()
     }
 
-    async fn create_billable_receiver(&self) -> BillableReceiver {
-        BillableReceiver::new(self.billable_receiver.clone())
+    fn create_billable_receiver(&self) -> BillableReceiver {
+        self.billable_receiver.clone()
     }
 
-    async fn create_metric_sender(&self) -> MetricSender {
-        MetricSender::new(self.metric_sender.clone())
+    fn create_metric_sender(&self) -> MetricSender {
+        self.metric_sender.clone()
     }
 
-    async fn create_metric_receiver(&self) -> MetricReceiver {
-        MetricReceiver::new(self.metric_receiver.clone())
+    fn create_metric_receiver(&self) -> MetricReceiver {
+        self.metric_receiver.clone()
     }
 }

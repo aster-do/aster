@@ -16,10 +16,9 @@ pub trait AsyncSender<T: Send, E: std::error::Error> {
     async fn send(&mut self, message: T) -> Result<(), E>;
 }
 
-#[async_trait]
-pub trait MessagingFactory {
-    async fn create_billable_sender(&self) -> BillableSender;
-    async fn create_billable_receiver(&self) -> BillableReceiver;
-    async fn create_metric_sender(&self) -> MetricSender;
-    async fn create_metric_receiver(&self) -> MetricReceiver;
+pub trait MessagingFactory: Send + Sync {
+    fn create_billable_sender(&self) -> BillableSender;
+    fn create_billable_receiver(&self) -> BillableReceiver;
+    fn create_metric_sender(&self) -> MetricSender;
+    fn create_metric_receiver(&self) -> MetricReceiver;
 }
