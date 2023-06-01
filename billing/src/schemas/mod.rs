@@ -69,8 +69,4 @@ impl QueryRoot {
             },
         ]
     }
-
-    async fn test(&self) -> String {
-        "test".to_owned()
-    }
 }
