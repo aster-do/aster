@@ -11,6 +11,8 @@ use axum::{
 use common::{messaging::crossbeam::CrossbeamMessagingFactory, services::AsterService};
 use log::info;
 
+const SERVICE_PORT: u16 = 3033;
+
 pub struct BillingService;
 
 impl BillingService {
@@ -57,9 +59,10 @@ pub async fn run() {
         .route("/", get(graphiql).post(graphql_handler))
         .layer(Extension(schema));
 
-    info!("GraphiQL IDE: http://localhost:3033");
+    let sarting_server_log_msg = &format!("GraphiQL IDE: http://0.0.0.0:{}", SERVICE_PORT);
+    info!("{}", sarting_server_log_msg);
 
-    Server::bind(&"127.0.0.1:3033".parse().unwrap())
+    Server::bind(&format!("0.0.0.0:{}", SERVICE_PORT).parse().unwrap())
         .serve(app.into_make_service())
         .await
         .unwrap();
