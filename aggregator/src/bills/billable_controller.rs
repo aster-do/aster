@@ -1,23 +1,70 @@
+use async_trait::async_trait;
+
 use crate::bills::{StoredBillable, _BillPerMetric as BillPerMetric};
 
+use common::{messaging::crossbeam::CrossbeamMessagingFactory, services::AsterService};
 use log::{debug, error, info};
 use sqlx::{query, query_as, types::uuid::Uuid, PgPool};
-use std::error::Error;
+use tokio::time::{sleep, Duration};
 
-pub struct _BillableController {
-    pub connection: PgPool,
+#[derive(Default)]
+pub struct BillableController {
+    pub connection: Option<PgPool>,
 }
 
-impl _BillableController {
-    pub async fn _new(connection_string: &str) -> Result<Self, Box<dyn Error>> {
-        let connection = PgPool::connect(connection_string).await?;
+#[async_trait]
+impl AsterService for BillableController {
+    async fn init(
+        &mut self,
+        _messaging: &mut CrossbeamMessagingFactory,
+    ) -> Result<(), anyhow::Error> {
+        let url = std::env::var("PG_STRING").expect("PG_STRING must be set");
+        self.connection = Some(
+            PgPool::connect(&url)
+                .await
+                .expect("Failed to connect to postgres"),
+        );
 
-        Ok(Self { connection })
+        Ok(())
     }
 
-    async fn _get_raw_billings(&self) -> Result<Vec<StoredBillable>, Box<dyn Error>> {
+    async fn run(&mut self) -> Result<(), anyhow::Error> {
+        info!("Starting aggregator");
+
+        let mut fail_count = 0;
+        const MAX_FAIL_COUNT: u32 = 5;
+
+        while fail_count < MAX_FAIL_COUNT {
+            match self._run_aggregation_pipeline().await {
+                Ok(_) => {
+                    info!("Aggregation pipeline completed successfully");
+                    fail_count = 0;
+                    sleep(Duration::from_secs(60)).await;
+                }
+                Err(e) => {
+                    error!(
+                        "Aggregation pipeline failed: {}, retrying in 5 seconds...",
+                        e
+                    );
+                    fail_count += 1;
+                    sleep(Duration::from_secs(5)).await;
+                }
+            };
+        }
+
+        error!(
+            "Aggregation pipeline failed {} times in a row. Shutting down",
+            MAX_FAIL_COUNT
+        );
+
+        Ok(())
+    }
+}
+
+impl BillableController {
+    async fn _get_raw_billings(&self) -> Result<Vec<StoredBillable>, anyhow::Error> {
         let results = query_as::<_, StoredBillable>("SELECT * FROM BILLABLE")
-            .fetch_all(&self.connection)
+            .fetch_all(self.connection.as_ref().unwrap())
             .await
             .map_err(Box::new)?;
 
@@ -55,7 +102,7 @@ impl _BillableController {
         bills_per_metric
     }
 
-    pub async fn _run_aggregation_pipeline(&mut self) -> Result<(), Box<dyn Error>> {
+    pub async fn _run_aggregation_pipeline(&mut self) -> Result<(), anyhow::Error> {
         let billings = self._get_raw_billings().await?;
         debug!("Got {:?}", billings);
 
@@ -68,13 +115,13 @@ impl _BillableController {
 
         let ids = billings.iter().map(|b| b.id).collect::<Vec<Uuid>>();
 
-        _BillableController::_aggregate(billings);
+        BillableController::_aggregate(billings);
 
         // Because we are never too careful we start a transaction
-        let mut transaction = self.connection.begin().await?;
+        let mut transaction = self.connection.as_ref().unwrap().begin().await?;
 
         match futures_util::future::try_join(
-            query("UPDATE BILLABLE SET TREATED = FALSE WHERE ID = ANY($1)")
+            query("UPDATE BILLABLE SET TREATED = TRUE WHERE ID = ANY($1)")
                 .bind(&ids[..])
                 .execute(&mut transaction),
             futures_util::future::ok(()),
@@ -129,7 +176,7 @@ mod tests {
             },
         ];
 
-        let aggregated = _BillableController::_aggregate(billings);
+        let aggregated = BillableController::_aggregate(billings);
 
         assert_eq!(aggregated.len(), 2);
         assert_eq!(aggregated[0].name, "test");

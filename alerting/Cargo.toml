@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 chrono = "0.4.26"
 common = { path = "../common" }
-async-trait = "0.1.51"
+async-trait = "0.1.68"
 notification = { path = "../notification" }
 anyhow = "1.0.71"
 log = "0.4.18"
