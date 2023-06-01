@@ -1,15 +1,18 @@
-use std::error::Error;
+use sqlx::types::{
+    chrono::{DateTime, Utc},
+    Uuid,
+};
 
 pub mod billable_controller;
 
-pub type Result<T, E = Box<dyn Error>> = std::result::Result<T, E>;
-
 ///
 /// Represents a billable originating from the billable kafka topic
-/// TODO
-pub struct Billable {}
-
-///
-/// This represents the total of all billables from a certain time period
-/// TODO
-pub struct AggregedBillable {}
+/// and stored in the database
+#[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::FromRow)]
+pub struct StoredBillable {
+    pub id: Uuid,
+    pub name: String,
+    pub price: i64,
+    pub timestamp: DateTime<Utc>,
+    pub value: f64,
+}
