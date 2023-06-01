@@ -6,13 +6,14 @@ use common::messaging::crossbeam::CrossbeamMessagingFactory;
 use common::AsterService;
 use tower_http::services::{ServeDir, ServeFile};
 
+const SERVICE_PORT: u16 = 3030;
+
 pub struct FrontendServer {
     frontend_files: String,
 }
 
 #[async_trait]
 impl AsterService for FrontendServer {
-    const SERVICE_PORT: u16 = 3030;
     async fn init(
         &mut self,
         _messaging: &mut CrossbeamMessagingFactory,
@@ -32,7 +33,7 @@ impl AsterService for FrontendServer {
 
         // run the server
         Ok(
-            Server::bind(&format!("0.0.0.0:{}", Self::SERVICE_PORT).parse().unwrap())
+            Server::bind(&format!("0.0.0.0:{}", SERVICE_PORT).parse().unwrap())
                 .serve(router.into_make_service())
                 .await?,
         )
