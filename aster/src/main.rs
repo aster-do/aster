@@ -15,6 +15,7 @@ async fn main() -> Result<(), anyhow::Error> {
     let mut services: Vec<Box<dyn AsterService>> = vec![
         Box::<frontend_server::FrontendServer>::default(),
         Box::<BillingService>::default(),
+        Box::<dashboard::DashboardServer>::default(),
     ];
 
     info!("Init services");
