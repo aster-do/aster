@@ -1,5 +1,5 @@
-use crate::schemas::{BillingSchema, QueryRoot};
-use async_graphql::{http::GraphiQLSource, EmptyMutation, EmptySubscription, Schema};
+use crate::schemas::{BillingSchema, MutationRoot, QueryRoot};
+use async_graphql::{http::GraphiQLSource, EmptySubscription, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use async_trait::async_trait;
 use axum::{
@@ -57,7 +57,7 @@ async fn graphiql() -> impl IntoResponse {
 }
 
 pub async fn run() {
-    let schema = Schema::new(QueryRoot, EmptyMutation, EmptySubscription);
+    let schema = Schema::new(QueryRoot, MutationRoot, EmptySubscription);
 
     let app = Router::new()
         .route("/", get(graphiql).post(graphql_handler))
