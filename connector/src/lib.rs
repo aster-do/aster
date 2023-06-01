@@ -76,12 +76,13 @@ impl AsterService for ConnectorService {
 
             // Insert the billable into the database
             sqlx::query(
-                "INSERT INTO billables (name, price, timestamp, value) VALUES ($1, $2, $3, $4)",
+                "INSERT INTO billables (name, price, timestamp, value, treated) VALUES ($1, $2, $3, $4, $5)",
             )
             .bind(billable.name)
             .bind(billable.price)
             .bind(billable.timestamp)
             .bind(billable.value)
+            .bind(false)
             .execute(&mut conn)
             .await?;
 

@@ -3,30 +3,23 @@ use sqlx::types::{
     Uuid,
 };
 
-pub mod billable_controller;
+pub mod aggregators;
 
-///
-/// Represents a billable originating from the billable kafka topic
-/// and stored in the database
-#[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::FromRow)]
-pub struct StoredBillable {
-    pub id: Uuid,
-    /// name of the metric
-    pub name: String,
-    /// Total price of bill
-    pub price: i64,
-    /// Timestamp at which the bill was issued
-    pub timestamp: DateTime<Utc>,
-    /// Value per unit of the metric
-    pub value: f64,
-    /// Whether the bill has been treated or not
-    pub treated: bool,
-}
-
-pub struct _BillPerMetric {
+pub struct BillPerMetricAndHour {
     pub id: Option<Uuid>,
     /// name of the metric
     pub name: String,
+    /// Hour at which the bill was issued (rounded down)
+    pub hour: DateTime<Utc>,
     /// total price of bill
     pub price: i64,
+}
+
+pub struct AverageMetricPerHour {
+    /// name of the metric
+    pub name: String,
+    /// Hour at which the bill was issued (rounded down)
+    pub hour: DateTime<Utc>,
+    /// total price of bill
+    pub average: f64,
 }

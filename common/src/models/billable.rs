@@ -15,4 +15,5 @@ pub struct BillableSQL {
     pub price: i64,
     pub timestamp: chrono::DateTime<Utc>,
     pub value: f64,
+    pub treated: bool,
 }
