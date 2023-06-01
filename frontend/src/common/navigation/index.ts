@@ -23,3 +23,37 @@ export default function getRoutes(): RouteObject[] {
 
   return getRoutesInternal(navigationRoutes);
 }
+
+export function getRouteTitle(path: string): string {
+  const explodedPath = path.split('/').slice(1);
+
+  function getRouteTitleInternal(
+    navRoutes: NavigationRoute[],
+    pathRemaining: string[],
+    currentTitles: string[]
+  ): string[] {
+    if (navRoutes.length === 0) {
+      return [];
+    }
+
+    const currentNavRoute = navRoutes.find(
+      (navRoute) => navRoute.path === pathRemaining[0]
+    );
+
+    if (!currentNavRoute) {
+      return [];
+    }
+
+    return currentTitles
+      .concat([currentNavRoute.name])
+      .concat(
+        getRouteTitleInternal(
+          currentNavRoute.subRoutes ?? [],
+          pathRemaining.slice(1),
+          currentTitles
+        )
+      );
+  }
+
+  return getRouteTitleInternal(navigationRoutes, explodedPath, []).join(' - ');
+}
