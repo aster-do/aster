@@ -1,11 +1,8 @@
 name: release
 
 on:
-  push:
-    tags:
-      - "v*"
-    branches:
-      - main
+  release:
+    types: [published]
 
 env:
   CARGO_TERM_COLOR: always
