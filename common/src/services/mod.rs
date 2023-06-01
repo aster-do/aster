@@ -16,6 +16,6 @@ pub trait AsterService {
     async fn init(
         &mut self,
         messaging: &mut CrossbeamMessagingFactory,
-    ) -> Result<(), AsterServiceError>;
-    async fn run(&mut self) -> Result<(), AsterServiceError>;
+    ) -> Result<(), anyhow::Error>;
+    async fn run(&mut self) -> Result<(), anyhow::Error>;
 }
