@@ -1,9 +1,17 @@
+use std::time::Duration;
+
 use billing::services::BillingService;
 use common::{services::AsterServiceError, AsterService};
 use log::info;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
+    //console subscriber for tokio-console debugger
+    console_subscriber::ConsoleLayer::builder()
+        .retention(Duration::from_secs(60))
+        .server_addr(([127, 0, 0, 1], 5555))
+        .init();
+
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
 
     info!("Starting Aster");

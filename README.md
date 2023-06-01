@@ -136,6 +136,19 @@ Build Aster with Cargo
 ```
 
 
+### debug async with tokio console
+
+see [tokio-console](https://github.com/tokio-rs/console)
+
+```sh
+./debug-aster.sh
+```
+
+then open the tokio console
+```sh
+tokio-console http://localhost:5555
+```
+
 
 <!-- Contributing -->
 ## :wave: Contributing
