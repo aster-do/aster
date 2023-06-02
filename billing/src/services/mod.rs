@@ -8,7 +8,7 @@ use axum::{
     routing::get,
     Router, Server,
 };
-use common::{messaging::crossbeam::CrossbeamMessagingFactory, services::AsterService};
+use common::{messaging::tokio_broadcast::CrossbeamMessagingFactory, services::AsterService};
 use log::info;
 
 const SERVICE_PORT: u16 = 3033;

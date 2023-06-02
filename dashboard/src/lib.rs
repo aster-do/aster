@@ -1,7 +1,7 @@
 use anyhow::Context;
 use async_trait::async_trait;
 use axum::{Router, Server};
-use common::{messaging::crossbeam::CrossbeamMessagingFactory, AsterService};
+use common::{messaging::tokio_broadcast::CrossbeamMessagingFactory, AsterService};
 use sqlx::{postgres::PgPoolOptions, PgPool};
 const SERVICE_PORT: u16 = 3036;
 

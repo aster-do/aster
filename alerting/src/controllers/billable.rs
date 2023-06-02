@@ -1,5 +1,5 @@
 use anyhow::{Ok, Result};
-use common::messaging::crossbeam::BillableReceiver;
+use common::messaging::tokio_broadcast::BillableReceiver;
 use log::{debug, info};
 
 use common::messaging::AsyncReceiver;

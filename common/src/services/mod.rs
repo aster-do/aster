@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use thiserror::Error;
 
-use crate::messaging::crossbeam::CrossbeamMessagingFactory;
+use crate::messaging::tokio_broadcast::CrossbeamMessagingFactory;
 
 #[derive(Error, Debug)]
 pub enum AsterServiceError {

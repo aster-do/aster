@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use common::{
-    messaging::crossbeam::{BillableReceiver, CrossbeamMessagingFactory},
+    messaging::tokio_broadcast::{BillableReceiver, CrossbeamMessagingFactory},
     messaging::{AsyncReceiver, MessagingFactory},
     AsterService,
 };
