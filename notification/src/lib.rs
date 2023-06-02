@@ -23,7 +23,7 @@ const ADDRESS: IpAddr = IpAddr::V4(std::net::Ipv4Addr::new(127, 0, 0, 1));
 impl AsterService for NotificationInterface {
     async fn init(
         &mut self,
-        _: &mut common::messaging::crossbeam::CrossbeamMessagingFactory,
+        _: &mut common::messaging::tokio_broadcast::CrossbeamMessagingFactory,
     ) -> Result<()> {
         debug!("Initializing channel controller");
         self.channel_controller = Some(controllers::channel::ChannelController::new(

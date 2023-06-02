@@ -25,7 +25,7 @@ const ADDRESS: IpAddr = IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1));
 impl AsterService for AlertingInterface {
     async fn init(
         &mut self,
-        messaging: &mut common::messaging::crossbeam::CrossbeamMessagingFactory,
+        messaging: &mut common::messaging::tokio_broadcast::CrossbeamMessagingFactory,
     ) -> Result<()> {
         debug!("Initializing billable controller");
         self.billable_controller = Some(BillableController::new(

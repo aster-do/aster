@@ -1,6 +1,8 @@
 use crate::transformer::transform;
 use async_trait::async_trait;
-use common::messaging::crossbeam::{BillableSender, CrossbeamMessagingFactory, MetricReceiver};
+use common::messaging::tokio_broadcast::{
+    BillableSender, CrossbeamMessagingFactory, MetricReceiver,
+};
 use common::messaging::{AsyncReceiver, AsyncSender, MessagingFactory};
 use common::models::billable_rule::{BillableOperation, BillableRule};
 use common::AsterService;
