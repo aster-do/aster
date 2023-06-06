@@ -1,3 +1,175 @@
 {
-  "db": "PostgreSQL"
+  "db": "PostgreSQL",
+  "4bf0a9e0977ee92a5f039dd8c20dde607d370a68e1d903390ff8331ff6edb65e": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Numeric",
+          "Varchar",
+          "Int4",
+          "Text"
+        ]
+      }
+    },
+    "query": "INSERT INTO alertingrule (id, name, rule_type, metric_name, threshold, trigger, duration, notification_channel_ids) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)"
+  },
+  "66cf63f1131e501f6a83857fca2e491d5532e8c049ac682915d352c6b7351626": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "DELETE FROM alertingrule WHERE id = $1"
+  },
+  "6aae3a78c644a44e572d11af4b1aa21519298170f05b632595d43c4b1ecd1759": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "rule_type",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "metric_name",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "threshold",
+          "ordinal": 4,
+          "type_info": "Numeric"
+        },
+        {
+          "name": "trigger",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "duration",
+          "ordinal": 6,
+          "type_info": "Int4"
+        },
+        {
+          "name": "notification_channel_ids",
+          "ordinal": 7,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT * FROM alertingrule WHERE id = $1"
+  },
+  "ec576c06b64f52fb3dcb0d13f61bd5747427b83ee6e91a82ce789fc539c3c21b": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "rule_type",
+          "ordinal": 2,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "metric_name",
+          "ordinal": 3,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "threshold",
+          "ordinal": 4,
+          "type_info": "Numeric"
+        },
+        {
+          "name": "trigger",
+          "ordinal": 5,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "duration",
+          "ordinal": 6,
+          "type_info": "Int4"
+        },
+        {
+          "name": "notification_channel_ids",
+          "ordinal": 7,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT * FROM alertingrule"
+  },
+  "f96033f7008f8a68df0caaabb0f2ed5cc77fe007571eaad4d134c6e228d8ab20": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Varchar",
+          "Varchar",
+          "Numeric",
+          "Varchar",
+          "Int4",
+          "Text",
+          "Text"
+        ]
+      }
+    },
+    "query": "UPDATE alertingrule SET name = $1, rule_type = $2, metric_name = $3, threshold = $4, trigger = $5, duration = $6, notification_channel_ids = $7 WHERE id = $8"
+  }
 }

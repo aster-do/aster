@@ -16,5 +16,5 @@ async-graphql = { workspace = true , features = ["dynamic-schema"]}
 async-graphql-axum = { workspace = true }
 axum = { workspace = true }
 tokio = { workspace = true, features = ["full","tracing"] }
-sqlx = { version = "0.6", features = [ "runtime-tokio-native-tls", "postgres", "macros", "json", "bigdecimal" ] }
+sqlx = { version = "0.6", features = [ "runtime-tokio-native-tls", "postgres", "macros", "json", "bigdecimal", "offline" ] }
 
