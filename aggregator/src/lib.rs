@@ -65,10 +65,13 @@ impl AsterService for BillableAggregatorService {
 
 impl BillableAggregatorService {
     async fn get_raw_billings(&self) -> Result<Vec<BillableSQL>, anyhow::Error> {
-        let results = query_as!(BillableSQL, "SELECT * FROM BILLABLE WHERE TREATED = false")
-            .fetch_all(self.connection.as_ref().unwrap())
-            .await
-            .map_err(Box::new)?;
+        let results = query_as!(
+            BillableSQL,
+            "SELECT * FROM billables.BILLABLE WHERE TREATED = false"
+        )
+        .fetch_all(self.connection.as_ref().unwrap())
+        .await
+        .map_err(Box::new)?;
 
         Ok(results)
     }
@@ -93,7 +96,7 @@ impl BillableAggregatorService {
 
         match futures_util::future::try_join(
             query!(
-                "UPDATE BILLABLE SET TREATED = TRUE WHERE ID = ANY($1)",
+                "UPDATE billables.BILLABLE SET TREATED = TRUE WHERE ID = ANY($1)",
                 &ids[..]
             )
             .execute(&mut transaction),
