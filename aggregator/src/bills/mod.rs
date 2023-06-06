@@ -4,6 +4,7 @@ use sqlx::types::{
 };
 
 pub mod aggregators;
+pub mod tables;
 
 pub struct BillPerMetricAndHour {
     pub id: Option<Uuid>,
