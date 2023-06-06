@@ -11,6 +11,5 @@ async-trait = { workspace = true }
 sqlx = { workspace = true , features = [ "runtime-tokio-native-tls", "postgres", "chrono" ] }
 anyhow = { workspace = true }
 thiserror = { workspace = true }
-crossbeam-channel = { workspace = true }
 chrono = { workspace = true }
 log = { workspace = true }
