@@ -69,17 +69,17 @@ mod tests {
         vec![
             BillableRule {
                 id: Some(1),
-                version: Some(1),
                 name: "cpu".to_string(),
                 operation: BillableOperation::Multiply,
                 number: 200,
+                version: Some(1),
             },
             BillableRule {
                 id: Some(2),
-                version: Some(1),
                 name: "memory".to_string(),
                 operation: BillableOperation::Multiply,
                 number: 0,
+                version: Some(1),
             },
         ]
     }
