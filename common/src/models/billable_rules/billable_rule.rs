@@ -6,9 +6,11 @@
 /// then the customer will be charged 5 times the cpu usage.
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd)]
 pub struct BillableRule {
+    pub id: Option<i32>,
     pub name: String,
     pub operation: BillableOperation,
     pub number: u32,
+    pub version: Option<i32>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd)]

@@ -1,6 +1,6 @@
 {
   "db": "PostgreSQL",
-  "03a2d876edf09d866bf32aca53ecbf9c718c1155852931176247f9917295afde": {
+  "90c23d6a261a85c2cb8c4728e9e57e5ccd2d9d988bc52b52c71e2faadd745b51": {
     "describe": {
       "columns": [
         {
@@ -34,9 +34,15 @@
           "name": "number",
           "ordinal": 3,
           "type_info": "Int4"
+        },
+        {
+          "name": "version",
+          "ordinal": 4,
+          "type_info": "Int4"
         }
       ],
       "nullable": [
+        false,
         false,
         false,
         false,
@@ -46,6 +52,6 @@
         "Left": []
       }
     },
-    "query": "SELECT id, name, operation as \"operation: _\", number FROM billable_rule"
+    "query": "SELECT id, name, operation as \"operation: _\", number, version FROM billable_rule"
   }
 }
