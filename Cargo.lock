@@ -452,7 +452,6 @@ dependencies = [
  "async-trait",
  "chrono",
  "common",
- "crossbeam-channel",
  "log",
  "sqlx",
  "thiserror",
