@@ -1,8 +1,10 @@
-pub mod structures;
+pub mod input;
+pub mod output;
 
 use async_graphql::{EmptySubscription, Schema, ID};
 use chrono::Utc;
-use structures::{Billing, BillingItem, BillingItemInput};
+use input::BillingGenerationOptions;
+use output::{Billing, BillingItem};
 
 pub type BillingSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
@@ -10,10 +12,10 @@ pub struct QueryRoot;
 
 #[async_graphql::Object]
 impl QueryRoot {
-    async fn billing(&self) -> Vec<Billing> {
+    async fn billing(&self, _id: Option<ID>) -> Vec<Billing> {
         // TODO: Get the billing from the database
 
-        vec![
+        let billings = vec![
             Billing {
                 id: ID::from("1".to_owned()),
                 generated_at: 1627776000,
@@ -56,7 +58,15 @@ impl QueryRoot {
                 ],
                 total_price: 1.0 + 3.9 * 2.0,
             },
-        ]
+        ];
+
+        match _id {
+            Some(id) => billings
+                .into_iter()
+                .filter(|billing| billing.id == id)
+                .collect(),
+            None => billings,
+        }
     }
 }
 
@@ -65,7 +75,7 @@ pub struct MutationRoot;
 #[async_graphql::Object]
 impl MutationRoot {
     /// Generate a billing for the month
-    async fn generate_billing(&self) -> Billing {
+    async fn generate_billing(&self, _options: Option<BillingGenerationOptions>) -> Billing {
         // TODO: Generate the billing from the database
 
         let id = ID::from("1".to_string());
@@ -94,34 +104,6 @@ impl MutationRoot {
             },
         ];
         let total_price = items.iter().map(|item| item.price * item.value).sum();
-
-        Billing {
-            id,
-            generated_at,
-            items,
-            total_price,
-        }
-    }
-
-    /// Generate a billing from the given items
-    async fn generate_billing_from_given_items(
-        &self,
-        billing_items_input: Vec<BillingItemInput>,
-    ) -> Billing {
-        // TODO: Add the billing to the database
-
-        let id = ID::from("1".to_string());
-        let generated_at = Utc::now().timestamp();
-        let mut items = vec![];
-
-        let mut total_price = 0.0;
-        for billing_item in billing_items_input {
-            let billing_item = BillingItem::from(billing_item);
-
-            total_price += billing_item.price * billing_item.value;
-
-            items.push(billing_item);
-        }
 
         Billing {
             id,
