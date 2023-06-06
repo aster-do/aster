@@ -3,6 +3,8 @@ pub mod bills;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 use anyhow::anyhow;
+use std::str::FromStr;
+
 use async_trait::async_trait;
 
 use axum::{routing::get, Router, Server};
@@ -11,7 +13,7 @@ use common::models::billable::BillableSQL;
 use common::monitoring::readiness_handler;
 use common::{messaging::tokio_broadcast::CrossbeamMessagingFactory, services::AsterService};
 use log::{error, info};
-use sqlx::{query, query_as, PgPool};
+use sqlx::{postgres::PgConnectOptions, query, query_as, PgPool};
 use tokio::time::{sleep, Duration};
 
 const MAX_FAIL_COUNT: u32 = 5;
@@ -34,10 +36,24 @@ impl AsterService for BillableAggregatorService {
         let url = std::env::var("DATABASE_URL")
             .unwrap_or("postgres://postgres:postgres@localhost:5432/postgres".to_string());
         self.connection = Some(
-            PgPool::connect(&url)
-                .await
-                .expect("Failed to connect to postgres"),
+            PgPool::connect_with(
+                PgConnectOptions::from_str(&url)
+                    .unwrap()
+                    .options([("search_path", "billables")]),
+            )
+            .await
+            .expect("Failed to connect to postgres"),
         );
+
+        match self.connection {
+            Some(ref connection) => {
+                run_migrations(connection).await?;
+            }
+            None => {
+                error!("No connection to database");
+                return Err(anyhow::anyhow!("No connection to database"));
+            }
+        }
 
         Ok(())
     }
