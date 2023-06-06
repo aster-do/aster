@@ -1,5 +1,7 @@
+use std::str::FromStr;
+
 use common::models::billable_rules::billable_rule_persistent::BillableRulePersistent;
-use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
+use sqlx::{postgres::PgConnectOptions, PgPool, Pool, Postgres};
 
 pub struct BillableRuleService {
     pub pool: Pool<Postgres>,
@@ -7,11 +9,13 @@ pub struct BillableRuleService {
 
 impl BillableRuleService {
     pub async fn new(db_url: &str) -> Self {
-        let pool = PgPoolOptions::new()
-            .max_connections(20)
-            .connect(db_url)
-            .await
-            .expect("failed to connect to Postgres");
+        let pool = PgPool::connect_with(
+            PgConnectOptions::from_str(db_url)
+                .unwrap()
+                .options([("search_path", "controller")]),
+        )
+        .await
+        .expect("failed to connect to Postgres");
 
         sqlx::migrate!()
             .run(&pool)

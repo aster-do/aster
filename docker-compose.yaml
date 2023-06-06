@@ -8,10 +8,12 @@ services:
       - 5432:5432
     volumes:
       - postgres:/bitnami/postgresql
+      - ./scripts:/docker-entrypoint-initdb.d
     environment:
       - POSTGRESQL_USER=postgres
       - POSTGRESQL_PASSWORD=postgres
       - POSTGRESQL_DATABASE=postgres
+      - POSTGRESQL_SCHEMAS=billables,controller
 
 volumes:
   postgres:
