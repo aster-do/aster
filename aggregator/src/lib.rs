@@ -18,6 +18,7 @@ const MAX_FAIL_COUNT: u32 = 5;
 const READINESS_SERVER_ADDRESS: &SocketAddr =
     &SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 3037);
 const READINESS_SERVER_ENDPOINT: &str = "/health";
+use bills::tables::run_migrations;
 
 #[derive(Default)]
 pub struct BillableAggregatorService {
