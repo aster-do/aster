@@ -1,0 +1,63 @@
+{
+  "db": "PostgreSQL",
+  "24e42446ec3abefae36eb7f6115fd03ea41b50442e65b63d869b15b459809f23": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4Array"
+        ]
+      }
+    },
+    "query": "UPDATE billables.BILLABLE SET TREATED = TRUE WHERE ID = ANY($1)"
+  },
+  "e0e45a7e10e85479a6427782fc0d828b4b4a730259621f0bccec5b886549547b": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "price",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "timestamp",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "value",
+          "ordinal": 4,
+          "type_info": "Float8"
+        },
+        {
+          "name": "treated",
+          "ordinal": 5,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT * FROM billables.BILLABLE WHERE TREATED = false"
+  }
+}

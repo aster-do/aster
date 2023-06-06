@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS billable (
 
 CREATE TABLE IF NOT EXISTS billable_aggregate (
     name VARCHAR(255) NOT NULL,
-    timestamp TIMESTAMP NOT NULL,
+    timestamp TIMESTAMP with time zone NOT NULL,
     min DOUBLE PRECISION,
     max DOUBLE PRECISION,
     avg DOUBLE PRECISION,

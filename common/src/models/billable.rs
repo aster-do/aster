@@ -11,7 +11,7 @@ pub struct Billable {
 
 #[derive(sqlx::FromRow)]
 pub struct BillableSQL {
-    pub id: i64,
+    pub id: i32,
     pub name: String,
     pub price: i64,
     pub timestamp: chrono::DateTime<Utc>,
