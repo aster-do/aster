@@ -703,6 +703,7 @@ dependencies = [
  "axum",
  "chrono",
  "common",
+ "futures",
  "log",
  "serde",
  "sqlx",
