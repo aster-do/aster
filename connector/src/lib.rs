@@ -1,12 +1,21 @@
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+
+use anyhow::anyhow;
 use async_trait::async_trait;
+use axum::{routing::get, Router, Server};
 use common::{
     messaging::tokio_broadcast::{BillableReceiver, CrossbeamMessagingFactory},
     messaging::{AsyncReceiver, MessagingFactory},
+    monitoring::readiness_handler,
     AsterService,
 };
 use log::{debug, info, trace};
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use thiserror::Error;
+
+const READINESS_SERVER_ADDRESS: &SocketAddr =
+    &SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 3039);
+const READINESS_SERVER_ENDPOINT: &str = "/health";
 
 #[derive(Clone, Default)]
 pub struct ConnectorService {
@@ -61,6 +70,21 @@ impl AsterService for ConnectorService {
     async fn run(&mut self) -> Result<(), anyhow::Error> {
         info!("Running connector service ...");
 
+        let readiness_app = Router::new().route(READINESS_SERVER_ENDPOINT, get(readiness_handler));
+        let readiness_server =
+            Server::bind(READINESS_SERVER_ADDRESS).serve(readiness_app.into_make_service());
+
+        let (readiness_result, lifecycle_result) = tokio::join!(readiness_server, self.lifecycle());
+        readiness_result.map_err(|e| anyhow!("Readiness server failed").context(e))?;
+        lifecycle_result
+            .map_err(|e| anyhow!("BillableBuilderService lifecycle failed").context(e))?;
+
+        Ok(())
+    }
+}
+
+impl ConnectorService {
+    async fn lifecycle(&mut self) -> Result<(), anyhow::Error> {
         let mut receiver = self
             .state
             .as_mut()

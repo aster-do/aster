@@ -8,10 +8,14 @@ use axum::{
     routing::get,
     Router, Server,
 };
-use common::{messaging::tokio_broadcast::CrossbeamMessagingFactory, services::AsterService};
+use common::{
+    messaging::tokio_broadcast::CrossbeamMessagingFactory, monitoring::readiness_handler,
+    services::AsterService,
+};
 use log::info;
 
 const SERVICE_PORT: u16 = 3033;
+const READINESS_SERVER_ENDPOINT: &str = "/health";
 
 pub struct BillingService;
 
@@ -57,6 +61,7 @@ pub async fn run() {
 
     let app = Router::new()
         .route("/", get(graphiql).post(graphql_handler))
+        .route(READINESS_SERVER_ENDPOINT, get(readiness_handler))
         .layer(Extension(schema));
 
     let sarting_server_log_msg = &format!("GraphiQL IDE: http://0.0.0.0:{}", SERVICE_PORT);

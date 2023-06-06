@@ -24,6 +24,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
+ "axum",
  "chrono",
  "common",
  "env_logger",
@@ -354,9 +355,11 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
+ "axum",
  "chrono",
  "common",
  "log",
+ "tokio",
 ]
 
 [[package]]
@@ -480,11 +483,13 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
+ "axum",
  "chrono",
  "common",
  "log",
  "sqlx",
  "thiserror",
+ "tokio",
 ]
 
 [[package]]

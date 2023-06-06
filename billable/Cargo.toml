@@ -11,3 +11,5 @@ chrono = { workspace = true }
 async-trait = { workspace = true }
 log = { workspace = true }
 anyhow = { workspace = true }
+tokio = { workspace = true, features = ["macros"] }
+axum = { workspace = true }

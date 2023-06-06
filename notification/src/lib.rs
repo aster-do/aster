@@ -16,8 +16,9 @@ pub struct NotificationInterface {
     channel_controller: Option<ChannelController>,
 }
 
-const PORT: u16 = 3032;
+const PORT: u16 = 3034;
 const ADDRESS: IpAddr = IpAddr::V4(std::net::Ipv4Addr::new(127, 0, 0, 1));
+const READINESS_SERVER_ENDPOINT: &str = "/health";
 
 #[async_trait]
 impl AsterService for NotificationInterface {
@@ -28,6 +29,7 @@ impl AsterService for NotificationInterface {
         debug!("Initializing channel controller");
         self.channel_controller = Some(controllers::channel::ChannelController::new(
             SocketAddr::new(ADDRESS, PORT),
+            READINESS_SERVER_ENDPOINT.to_string(),
         )?);
 
         Ok(())

@@ -1,13 +1,23 @@
 pub mod bills;
 
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+
+use anyhow::anyhow;
 use async_trait::async_trait;
 
+use axum::{routing::get, Router, Server};
 use common::models::billable::BillableSQL;
 
+use common::monitoring::readiness_handler;
 use common::{messaging::tokio_broadcast::CrossbeamMessagingFactory, services::AsterService};
 use log::{error, info};
 use sqlx::{query, query_as, PgPool};
 use tokio::time::{sleep, Duration};
+
+const MAX_FAIL_COUNT: u32 = 5;
+const READINESS_SERVER_ADDRESS: &SocketAddr =
+    &SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 3037);
+const READINESS_SERVER_ENDPOINT: &str = "/health";
 
 #[derive(Default)]
 pub struct BillableAggregatorService {
@@ -34,31 +44,14 @@ impl AsterService for BillableAggregatorService {
     async fn run(&mut self) -> Result<(), anyhow::Error> {
         info!("Starting aggregator");
 
-        let mut fail_count = 0;
-        const MAX_FAIL_COUNT: u32 = 5;
+        let readiness_app = Router::new().route(READINESS_SERVER_ENDPOINT, get(readiness_handler));
+        let readiness_server =
+            Server::bind(READINESS_SERVER_ADDRESS).serve(readiness_app.into_make_service());
 
-        while fail_count < MAX_FAIL_COUNT {
-            match self.run_aggregation_pipeline().await {
-                Ok(_) => {
-                    info!("Aggregation pipeline completed successfully");
-                    fail_count = 0;
-                    sleep(Duration::from_secs(60)).await;
-                }
-                Err(e) => {
-                    error!(
-                        "Aggregation pipeline failed: {}, retrying in 5 seconds...",
-                        e
-                    );
-                    fail_count += 1;
-                    sleep(Duration::from_secs(5)).await;
-                }
-            };
-        }
-
-        error!(
-            "Aggregation pipeline failed {} times in a row. Shutting down",
-            MAX_FAIL_COUNT
-        );
+        let (readiness_result, lifecycle_result) = tokio::join!(readiness_server, self.lifecycle());
+        readiness_result.map_err(|e| anyhow!("Readiness server failed").context(e))?;
+        lifecycle_result
+            .map_err(|e| anyhow!("BillableBuilderService lifecycle failed").context(e))?;
 
         Ok(())
     }
@@ -111,5 +104,37 @@ impl BillableAggregatorService {
         info!("Aggregation pipeline ran sucessfully!");
 
         Ok(())
+    }
+
+    async fn lifecycle(&mut self) -> Result<(), anyhow::Error> {
+        let mut fail_count = 0;
+
+        while fail_count < MAX_FAIL_COUNT {
+            match self.run_aggregation_pipeline().await {
+                Ok(_) => {
+                    info!("Aggregation pipeline completed successfully");
+                    fail_count = 0;
+                    sleep(Duration::from_secs(60)).await;
+                }
+                Err(e) => {
+                    error!(
+                        "Aggregation pipeline failed: {}, retrying in 5 seconds...",
+                        e
+                    );
+                    fail_count += 1;
+                    sleep(Duration::from_secs(5)).await;
+                }
+            };
+        }
+
+        error!(
+            "Aggregation pipeline failed {} times in a row. Shutting down",
+            MAX_FAIL_COUNT
+        );
+
+        Err(anyhow!(
+            "Aggregation pipeline failed {} times in a row. Shutting down",
+            MAX_FAIL_COUNT
+        ))
     }
 }
