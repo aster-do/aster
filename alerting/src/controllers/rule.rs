@@ -24,10 +24,10 @@ pub struct RuleController {
 }
 
 impl RuleController {
-    pub fn new(http_address: SocketAddr, readiness_endpoint: String) -> Result<Self> {
+    pub async fn new(http_address: SocketAddr, readiness_endpoint: String) -> Result<Self> {
         Ok(Self {
             //Config & stateful info
-            _rule_service: RuleService::new()?,
+            _rule_service: RuleService::new().await,
             http_address,
             readiness_endpoint,
         })
@@ -74,4 +74,4 @@ impl QueryRoot {
     }
 }
 
-            //Config & stateful info
+//Config & stateful info
