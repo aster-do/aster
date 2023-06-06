@@ -1,5 +1,8 @@
 source ~/.cargo/env
 
+echo '+cargo sqlx prepare --check'
+cd controller && cargo sqlx prepare --check && cd ..
+
 echo '+cargo build --all'
 cargo build --all
 
