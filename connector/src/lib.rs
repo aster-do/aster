@@ -4,7 +4,7 @@ use common::{
     messaging::{AsyncReceiver, MessagingFactory},
     AsterService,
 };
-use log::{debug, trace};
+use log::{debug, info, trace};
 use sqlx::{postgres::PgPoolOptions, PgPool};
 use thiserror::Error;
 
@@ -31,6 +31,10 @@ impl AsterService for ConnectorService {
         &mut self,
         messaging: &mut CrossbeamMessagingFactory,
     ) -> Result<(), anyhow::Error> {
+        info!("Initializing connector service ...");
+
+        debug!("Connecting to database ...");
+
         // Get the database URL from the environment
         let database_url = std::env::var("DATABASE_URL")
             .unwrap_or("postgres://postgres:postgres@localhost:5432/postgres".to_string());
@@ -42,16 +46,21 @@ impl AsterService for ConnectorService {
             .await
             .map_err(ConnectorServiceError::ConnectorServiceDatabaseConnectionFailed)?;
 
+        debug!("Connected to database");
+
         // Create the billable receiver
         self.state = Some(ConnectorServiceState {
             billable_receiver: messaging.create_billable_receiver().await,
             pool,
         });
 
+        info!("Connector service initialized");
         Ok(())
     }
 
     async fn run(&mut self) -> Result<(), anyhow::Error> {
+        info!("Running connector service ...");
+
         let mut receiver = self
             .state
             .as_mut()
