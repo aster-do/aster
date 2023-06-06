@@ -24,6 +24,7 @@ notification = { path = "../notification" }
 frontend_server = { path = "../frontend_server" }
 anyhow = { workspace = true }
 console-subscriber = "0.1.9"
+axum = { workspace = true }
 
 [dev-dependencies.cargo-husky]
 version = "1"
