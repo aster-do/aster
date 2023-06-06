@@ -1,5 +1,5 @@
 use billable_rule_service::BillableRuleService;
-use common::{messaging::crossbeam::CrossbeamMessagingFactory, AsterService};
+use common::{messaging::tokio_broadcast::CrossbeamMessagingFactory, AsterService};
 use log::info;
 
 pub mod billable_rule_service;
