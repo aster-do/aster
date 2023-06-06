@@ -74,7 +74,6 @@ pub struct MutationRoot;
 
 #[async_graphql::Object]
 impl MutationRoot {
-    /// Generate a billing for the month
     async fn generate_billing(&self, _options: Option<BillingGenerationOptions>) -> Billing {
         // TODO: Generate the billing from the database
 
