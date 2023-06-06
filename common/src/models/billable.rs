@@ -1,6 +1,7 @@
 use chrono::Utc;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Billable {
     pub name: String,
     pub price: i64,
