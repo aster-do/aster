@@ -1,4 +1,5 @@
 use async_graphql::{SimpleObject, ID};
+use chrono::Utc;
 use serde::{Deserialize, Serialize};
 
 use super::input::InputBillingItem;
@@ -8,7 +9,7 @@ pub struct BillingItem {
     pub id: ID,
     pub name: String,
     pub price: f64,
-    pub timestamp: i64,
+    pub timestamp: chrono::DateTime<Utc>,
     pub value: f64,
 }
 
@@ -22,7 +23,7 @@ impl From<InputBillingItem> for BillingItem {
 #[derive(Debug, Clone, SimpleObject)]
 pub struct Billing {
     pub id: ID,
-    pub generated_at: i64,
+    pub generated_at: chrono::DateTime<Utc>,
     pub items: Vec<BillingItem>,
     pub total_price: f64,
 }
