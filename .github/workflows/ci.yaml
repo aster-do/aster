@@ -44,6 +44,9 @@ jobs:
       - name: Install rustfmt
         run: rustup component add rustfmt
 
+      - name: Clean
+        run: cargo clean -p ${{ matrix.component }}
+
       - name: Build
         run: cargo build -p ${{ matrix.component }}
 
