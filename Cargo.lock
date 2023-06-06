@@ -69,7 +69,6 @@ dependencies = [
 name = "alerting"
 version = "0.1.0"
 dependencies = [
-<<<<<<< refs/remotes/origin/main
  "anyhow",
  "async-graphql",
  "async-graphql-axum",
@@ -79,16 +78,8 @@ dependencies = [
  "common",
  "log",
  "notification",
+ "sqlx",
  "tokio",
-=======
- "async-trait",
- "chrono",
- "common",
-<<<<<<< refs/remotes/origin/main
->>>>>>> feat: create base `alerting` structure
-=======
- "notification",
->>>>>>> feat: create base `notification` structure
 ]
 
 [[package]]
@@ -360,6 +351,17 @@ name = "base64"
 version = "0.21.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "604178f6c5c21f02dc555784810edfb88d34ac2c73b2eae109655649ee73ce3d"
+
+[[package]]
+name = "bigdecimal"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a6773ddc0eafc0e509fb60e48dff7f450f8e674a0686ae8605e8d9901bd5eefa"
+dependencies = [
+ "num-bigint",
+ "num-integer",
+ "num-traits",
+]
 
 [[package]]
 name = "billable"
@@ -1524,6 +1526,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "num-bigint"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f93ab6289c7b344a8a9f60f88d80aa20032336fe78da341afc91c8a2341fc75f"
+dependencies = [
+ "autocfg",
+ "num-integer",
+ "num-traits",
+]
+
+[[package]]
+name = "num-integer"
+version = "0.1.45"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "225d3389fb3509a24c93f5c29eb6bde2586b98d9f016636dff58d7c6f7569cd9"
+dependencies = [
+ "autocfg",
+ "num-traits",
+]
+
+[[package]]
 name = "num-traits"
 version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2199,6 +2222,7 @@ dependencies = [
  "ahash 0.7.6",
  "atoi",
  "base64 0.13.1",
+ "bigdecimal",
  "bitflags",
  "byteorder",
  "bytes",
@@ -2223,6 +2247,7 @@ dependencies = [
  "log",
  "md-5",
  "memchr",
+ "num-bigint",
  "once_cell",
  "paste",
  "percent-encoding",
@@ -2710,20 +2735,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "497961ef93d974e23eb6f433eb5fe1b7930b659f06d12dec6fc44a8f554c0bba"
 
 [[package]]
-<<<<<<< refs/remotes/origin/main
 name = "ucd-trie"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9e79c4d996edb816c91e4308506774452e55e95c3c9de07b6729e17e15a5ef81"
-=======
-name = "notification"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "chrono",
- "common",
-]
->>>>>>> feat: create base `notification` structure
 
 [[package]]
 name = "uncased"

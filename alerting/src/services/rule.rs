@@ -1,45 +1,45 @@
-use anyhow::{Ok, Result};
+use crate::models::alerting_rule::{_AlertingRule, _RuleTrigger, _RuleType};
+use crate::services::database::DatabaseService;
 
-use crate::models::alerting_rule::_AlertingRule;
-
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct RuleService {
-    //Config & stateful info
+    database_service: Option<DatabaseService>,
 }
 
 impl RuleService {
-    pub fn new() -> Result<Self> {
-        Ok(Self {
-            //Config & stateful info
-        })
+    pub async fn new() -> Self {
+        Self {
+            database_service: Some(DatabaseService::new().await),
+        }
     }
 
-    pub fn _create_rule(&self, rule: _AlertingRule) -> Result<_AlertingRule> {
-        //TODO: Implement create rule logic
-        Ok(rule)
+    pub async fn _create_rule(&self, rule: _AlertingRule) -> _AlertingRule {
+        let database_service = self.database_service.as_ref().unwrap();
+        println!("{:?}", rule);
+        database_service._create_rule(rule).await
     }
 
-    pub fn _delete_rule(&self, _rule_id: String) -> Result<()> {
-        //TODO: Implement delete rule logic
-        Ok(())
+    pub async fn _delete_rule(&self, _rule_id: String) {
+        let database_service = self.database_service.as_ref().unwrap();
+        database_service._delete_rule(_rule_id).await;
     }
 
-    pub fn _update_rule(
+    pub async fn _update_rule(
         &self,
         _rule_id: String,
         _rule: _AlertingRule,
-    ) -> Result<Option<_AlertingRule>> {
-        //TODO: Implement update rule logic
-        Ok(None)
+    ) -> Option<_AlertingRule> {
+        let database_service = self.database_service.as_ref().unwrap();
+        database_service._update_rule(_rule_id, _rule).await
     }
 
-    pub fn _get_rules(&self) -> Result<Vec<_AlertingRule>> {
-        //TODO: Implement get rules logic
-        Ok(vec![])
+    pub async fn _get_rules(&self) -> Vec<_AlertingRule> {
+        let database_service = self.database_service.as_ref().unwrap();
+        database_service._get_rules().await
     }
 
-    pub fn _get_rule(&self, _rule_id: String) -> Result<Option<_AlertingRule>> {
-        //TODO: Implement get rule logic
-        Ok(None)
+    pub async fn _get_rule(&self, _rule_id: String) -> Option<_AlertingRule> {
+        let database_service = self.database_service.as_ref().unwrap();
+        database_service._get_rule(_rule_id).await
     }
 }

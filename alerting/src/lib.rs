@@ -34,10 +34,13 @@ impl AsterService for AlertingInterface {
         )?);
 
         debug!("Initializing rule controller");
-        self.rule_controller = Some(RuleController::new(
-            SocketAddr::new(ADDRESS, PORT),
-            READINESS_SERVER_ENDPOINT.to_string(),
-        )?);
+        self.rule_controller = Some(
+            RuleController::new(
+                SocketAddr::new(ADDRESS, PORT),
+                READINESS_SERVER_ENDPOINT.to_string(),
+            )
+            .await?,
+        );
 
         Ok(())
     }
