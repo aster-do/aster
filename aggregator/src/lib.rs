@@ -38,11 +38,11 @@ impl AsterService for BillableAggregatorService {
         self.connection = Some(
             PgPool::connect_with(
                 PgConnectOptions::from_str(&url)
-                    .unwrap()
+                    .map_err(|e| anyhow!("Failed to parse database url").context(e))?
                     .options([("search_path", "billables")]),
             )
             .await
-            .expect("Failed to connect to postgres"),
+            .map_err(|e| anyhow!("Failed to connect to database").context(e))?,
         );
 
         match self.connection {
@@ -76,10 +76,13 @@ impl AsterService for BillableAggregatorService {
 
 impl BillableAggregatorService {
     async fn get_raw_billings(&self) -> Result<Vec<BillableSQL>, anyhow::Error> {
-        let results = query_as::<_, BillableSQL>("SELECT * FROM BILLABLE WHERE TREATED = false")
-            .fetch_all(self.connection.as_ref().unwrap())
-            .await
-            .map_err(Box::new)?;
+        let results = query_as!(
+            BillableSQL,
+            "SELECT * FROM billables.BILLABLE WHERE TREATED = false"
+        )
+        .fetch_all(self.connection.as_ref().unwrap())
+        .await
+        .map_err(Box::new)?;
 
         Ok(results)
     }
@@ -94,7 +97,7 @@ impl BillableAggregatorService {
 
         info!("Got {} billings from database", billings.len());
 
-        let ids = billings.iter().map(|b| b.id).collect::<Vec<i64>>();
+        let ids = billings.iter().map(|b| b.id).collect::<Vec<i32>>();
 
         // TODO toggle aggregation and insert what has been aggregated
         // aggregate(billings);
@@ -103,9 +106,11 @@ impl BillableAggregatorService {
         let mut transaction = self.connection.as_ref().unwrap().begin().await?;
 
         match futures_util::future::try_join(
-            query("UPDATE BILLABLE SET TREATED = TRUE WHERE ID = ANY($1)")
-                .bind(&ids[..])
-                .execute(&mut transaction),
+            query!(
+                "UPDATE billables.BILLABLE SET TREATED = TRUE WHERE ID = ANY($1)",
+                &ids[..]
+            )
+            .execute(&mut transaction),
             futures_util::future::ok(()),
         )
         .await

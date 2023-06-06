@@ -1,6 +1,6 @@
 {
   "db": "PostgreSQL",
-  "4ef251f7fd213c881b3fe353e92b8f43437452503878ee767d6d586a23633603": {
+  "b9af1ae12b0d75739a2171274521c38ebbb7adbd9720d150bad9062ba0d7933c": {
     "describe": {
       "columns": [],
       "nullable": [],
@@ -8,11 +8,11 @@
         "Left": [
           "Varchar",
           "Int8",
-          "Timestamp",
+          "Timestamptz",
           "Float8"
         ]
       }
     },
-    "query": "INSERT INTO billable (name, price, timestamp, value, treated) VALUES ($1, $2, $3, $4, false)"
+    "query": "INSERT INTO billables.billable (name, price, timestamp, value, treated) VALUES ($1, $2, $3, $4, false)"
   }
 }

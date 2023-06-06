@@ -109,10 +109,10 @@ impl ConnectorService {
 
             // Insert the billable into the database
             sqlx::query!(
-                "INSERT INTO billable (name, price, timestamp, value, treated) VALUES ($1, $2, $3, $4, false)",
+                "INSERT INTO billables.billable (name, price, timestamp, value, treated) VALUES ($1, $2, $3, $4, false)",
                 billable.name,
                 billable.price,
-                billable.timestamp.naive_utc(),
+                billable.timestamp,
                 billable.value
             )
             .execute(&mut conn)

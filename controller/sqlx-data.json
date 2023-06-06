@@ -1,6 +1,6 @@
 {
   "db": "PostgreSQL",
-  "90c23d6a261a85c2cb8c4728e9e57e5ccd2d9d988bc52b52c71e2faadd745b51": {
+  "82efa43c891b09bfbe961a9d6821fff036f194f4faaa3998ad4ce0c1328ee303": {
     "describe": {
       "columns": [
         {
@@ -52,6 +52,6 @@
         "Left": []
       }
     },
-    "query": "SELECT id, name, operation as \"operation: _\", number, version FROM billable_rule"
+    "query": "SELECT id, name, operation as \"operation: _\", number FROM controller.billable_rule"
   }
 }

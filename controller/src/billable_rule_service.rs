@@ -28,7 +28,7 @@ impl BillableRuleService {
     pub async fn get_all(&self) -> Result<Vec<BillableRulePersistent>, anyhow::Error> {
         let rules = sqlx::query_as!(
             BillableRulePersistent,
-            "SELECT id, name, operation as \"operation: _\", number, version FROM billable_rule"
+            "SELECT id, name, operation as \"operation: _\", number FROM controller.billable_rule"
         )
         .fetch_all(&self.pool)
         .await?;
