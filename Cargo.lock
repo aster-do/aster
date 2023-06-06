@@ -114,6 +114,7 @@ dependencies = [
  "aggregator",
  "alerting",
  "anyhow",
+ "axum",
  "billable",
  "billing",
  "cargo-husky",
