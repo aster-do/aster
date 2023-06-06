@@ -1,0 +1,51 @@
+{
+  "db": "PostgreSQL",
+  "03a2d876edf09d866bf32aca53ecbf9c718c1155852931176247f9917295afde": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "operation: _",
+          "ordinal": 2,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "Add",
+                  "Subtract",
+                  "Multiply",
+                  "Divide"
+                ]
+              },
+              "name": "billable_operation"
+            }
+          }
+        },
+        {
+          "name": "number",
+          "ordinal": 3,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT id, name, operation as \"operation: _\", number FROM billable_rule"
+  }
+}
