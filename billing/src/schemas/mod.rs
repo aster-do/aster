@@ -1,4 +1,4 @@
-mod structures;
+pub mod structures;
 
 use async_graphql::{EmptySubscription, Schema, ID};
 use chrono::Utc;
@@ -11,6 +11,8 @@ pub struct QueryRoot;
 #[async_graphql::Object]
 impl QueryRoot {
     async fn billing(&self) -> Vec<Billing> {
+        // TODO: Get the billing from the database
+
         vec![
             Billing {
                 id: ID::from("1".to_owned()),
@@ -62,7 +64,54 @@ pub struct MutationRoot;
 
 #[async_graphql::Object]
 impl MutationRoot {
-    async fn add_billing(&self, billing_items_input: Vec<BillingItemInput>) -> Billing {
+    /// Generate a billing for the month
+    async fn generate_billing(&self) -> Billing {
+        // TODO: Generate the billing from the database
+
+        let id = ID::from("1".to_string());
+        let generated_at = Utc::now().timestamp();
+        let items = vec![
+            BillingItem {
+                id: "3".into(),
+                name: "memory".into(),
+                price: 10.99,
+                timestamp: 1686052774,
+                value: 1.0,
+            },
+            BillingItem {
+                id: "4".into(),
+                name: "cpu".into(),
+                price: 1.99,
+                timestamp: 1686052775,
+                value: 3.5,
+            },
+            BillingItem {
+                id: "5".into(),
+                name: "cpu".into(),
+                price: 2.30,
+                timestamp: 1686052776,
+                value: 4.0,
+            },
+        ];
+        let total_price = items.iter().map(|item| item.price * item.value).sum();
+
+        Billing {
+            id,
+            generated_at,
+            items,
+            total_price,
+        }
+    }
+
+    /// Generate a billing from the given items
+    async fn generate_billing_from_given_items(
+        &self,
+        billing_items_input: Vec<BillingItemInput>,
+    ) -> Billing {
+        // TODO: Add the billing to the database
+
+        let id = ID::from("1".to_string());
+        let generated_at = Utc::now().timestamp();
         let mut items = vec![];
 
         let mut total_price = 0.0;
@@ -73,9 +122,6 @@ impl MutationRoot {
 
             items.push(billing_item);
         }
-
-        let id = ID::from("1".to_string());
-        let generated_at = Utc::now().timestamp();
 
         Billing {
             id,
