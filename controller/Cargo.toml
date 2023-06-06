@@ -15,4 +15,3 @@ log = "0.4.18"
 axum = { version = "0.6.18", features = ["macros"] }
 tokio = { version = "1.28.2", features = ["macros", "rt-multi-thread"] }
 sqlx = { version = "0.6.3", features = ["runtime-tokio-native-tls", "postgres", "time", "uuid", "offline"] }
-sqlx-cli = "0.6.3"
