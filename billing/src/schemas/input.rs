@@ -13,17 +13,10 @@ pub struct InputBillingItem {
 #[derive(Debug, Clone, InputObject)]
 pub struct BillingGenerationOptions {
     specific_date: Option<SpecificDate>,
-    update_billing: Option<UpdateBilling>,
 }
 
 #[derive(Debug, Clone, InputObject)]
 pub struct SpecificDate {
     month: i32,
     year: i32,
-}
-
-#[derive(Debug, Clone, InputObject)]
-pub struct UpdateBilling {
-    id: ID,
-    items: Vec<InputBillingItem>,
 }
