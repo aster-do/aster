@@ -16,20 +16,26 @@ pub struct DatabaseService {
 
 impl DatabaseService {
     pub async fn new() -> Self {
-        Self {
-            pool: Some(
-                PgPoolOptions::new()
-                    .max_connections(100)
-                    .connect("postgres://postgres:postgres@localhost:5432/postgres")
-                    .await
-                    .expect("Unable to connect to Postgres"),
-            ),
-        }
+        let pool = match PgPoolOptions::new()
+            .max_connections(100)
+            .connect("postgres://postgres:postgres@localhost:5432/postgres")
+            .await
+        {
+            Ok(pool) => Some(pool),
+            Err(_) => None,
+        };
+
+        Self { pool }
     }
 
-    pub async fn _create_rule(&self, rule: _AlertingRule) -> _AlertingRule {
-        let mut conn: sqlx::pool::PoolConnection<sqlx::Postgres> =
-            self.pool.as_ref().unwrap().acquire().await.unwrap();
+    pub async fn _create_rule(&self, rule: _AlertingRule) -> anyhow::Result<_AlertingRule> {
+        let mut conn: sqlx::pool::PoolConnection<sqlx::Postgres> = self
+            .pool
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("Alerting : No pool found"))?
+            .acquire()
+            .await
+            .map_err(|e| anyhow::anyhow!("Alerting : Failed to acquire connection: {}", e))?;
 
         let rule_to_insert = AlertingRuleInsert {
             id: rule._id.clone(),
@@ -55,31 +61,38 @@ impl DatabaseService {
             rule_to_insert.notification_channel_ids
         ).execute(
             &mut conn
-        ).await.unwrap();
+        ).await.map_err(|e| anyhow::anyhow!("Alerting : Failed to insert rule: {}", e))?;
 
-        rule
+        Ok(rule)
     }
 
-    pub async fn _delete_rule(&self, _rule_id: String) {
-        let mut conn: sqlx::pool::PoolConnection<sqlx::Postgres> =
-            self.pool.as_ref().unwrap().acquire().await.unwrap();
+    pub async fn _delete_rule(&self, _rule_id: String) -> anyhow::Result<()> {
+        let mut conn: sqlx::pool::PoolConnection<sqlx::Postgres> = self
+            .pool
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("Alerting : No pool found"))?
+            .acquire()
+            .await
+            .map_err(|e| anyhow::anyhow!("Alerting : Failed to acquire connection: {}", e))?;
 
         sqlx::query!("DELETE FROM alertingrule WHERE id = $1", _rule_id)
             .execute(&mut conn)
             .await
-            .unwrap();
+            .map_err(|e| anyhow::anyhow!("Alerting : Failed to delete rule: {}", e))?;
+
+        Ok(())
     }
 
     pub async fn _update_rule(
         &self,
         _rule_id: String,
         rule: _AlertingRule,
-    ) -> Option<_AlertingRule> {
+    ) -> anyhow::Result<Option<_AlertingRule>> {
         // check if rule exists
-        let rule_to_update = &self._get_rule(_rule_id).await;
+        let rule_to_update = &self._get_rule(_rule_id).await?;
 
         if rule_to_update.is_none() {
-            return None;
+            return Ok(None);
         }
 
         let rule_to_update = AlertingRuleInsert {
@@ -94,8 +107,13 @@ impl DatabaseService {
             notification_channel_ids: Some(format!("{:?}", rule._notification_channel_ids)),
         };
 
-        let mut conn: sqlx::pool::PoolConnection<sqlx::Postgres> =
-            self.pool.as_ref().unwrap().acquire().await.unwrap();
+        let mut conn: sqlx::pool::PoolConnection<sqlx::Postgres> = self
+            .pool
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("Alerting : No pool found"))?
+            .acquire()
+            .await
+            .map_err(|e| anyhow::anyhow!("Alerting : Failed to acquire connection: {}", e))?;
 
         sqlx::query!(
             "UPDATE alertingrule SET name = $1, rule_type = $2, metric_name = $3, threshold = $4, trigger = $5, duration = $6, notification_channel_ids = $7 WHERE id = $8",
@@ -109,12 +127,12 @@ impl DatabaseService {
             rule_to_update.id
         ).execute(
             &mut conn
-        ).await.unwrap();
+        ).await.map_err(|e| anyhow::anyhow!("Alerting : Failed to update rule: {}", e))?;
 
-        Some(rule)
+        Ok(Some(rule))
     }
 
-    pub async fn _get_rule(&self, _rule_id: String) -> Option<_AlertingRule> {
+    pub async fn _get_rule(&self, _rule_id: String) -> anyhow::Result<Option<_AlertingRule>> {
         let rule: Option<AlertingRuleFetch> = sqlx::query_as!(
             AlertingRuleFetch,
             "SELECT * FROM alertingrule WHERE id = $1",
@@ -122,9 +140,9 @@ impl DatabaseService {
         )
         .fetch_optional(self.pool.as_ref().unwrap())
         .await
-        .expect("Unable to query alertingrule table");
+        .map_err(|e| anyhow::anyhow!("Alerting : Failed to fetch rule: {}", e))?;
 
-        rule.map(|rule| _AlertingRule {
+        Ok(rule.map(|rule| _AlertingRule {
             _id: rule.id,
             _name: rule.name,
             _rule_type: _RuleType::from_string(&rule.rule_type),
@@ -141,15 +159,15 @@ impl DatabaseService {
                         .collect()
                 })
                 .unwrap_or(vec![]),
-        })
+        }))
     }
 
-    pub async fn _get_rules(&self) -> Vec<_AlertingRule> {
+    pub async fn _get_rules(&self) -> anyhow::Result<Vec<_AlertingRule>> {
         let rules: Vec<AlertingRuleFetch> =
             sqlx::query_as!(AlertingRuleFetch, "SELECT * FROM alertingrule")
                 .fetch_all(self.pool.as_ref().unwrap())
                 .await
-                .expect("Unable to query alertingarule table");
+                .map_err(|e| anyhow::anyhow!("Alerting : Failed to fetch rules: {}", e))?;
 
         // Map AlertingRuleFetch to AlertingRule
         let alerting_rules: Vec<_AlertingRule> = rules
@@ -173,6 +191,7 @@ impl DatabaseService {
                     .unwrap_or(vec![]),
             })
             .collect();
-        alerting_rules
+
+        Ok(alerting_rules)
     }
 }
