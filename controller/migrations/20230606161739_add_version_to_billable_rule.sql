@@ -1,0 +1,1 @@
+alter table billable_rule add version int not null default 0;

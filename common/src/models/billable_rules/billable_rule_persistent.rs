@@ -10,6 +10,7 @@ pub struct BillableRulePersistent {
     pub name: String,
     pub operation: BillableOperationPersistent,
     pub number: i32,
+    pub version: i32,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, sqlx::Type)]
