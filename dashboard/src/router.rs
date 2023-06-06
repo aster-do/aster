@@ -8,6 +8,8 @@ use tower_http::cors::CorsLayer;
 
 const READINESS_SERVER_ENDPOINT: &str = "/health";
 
+const READINESS_SERVER_ENDPOINT: &str = "/health";
+
 pub struct AppState {
     pub pool: PgPool,
 }

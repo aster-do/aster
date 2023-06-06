@@ -16,14 +16,11 @@ use log::{error, info};
 use sqlx::{postgres::PgConnectOptions, query, query_as, PgPool};
 use tokio::time::{sleep, Duration};
 
-<<<<<<< HEAD
 const MAX_FAIL_COUNT: u32 = 5;
 const READINESS_SERVER_ADDRESS: &SocketAddr =
     &SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 3037);
 const READINESS_SERVER_ENDPOINT: &str = "/health";
-=======
 use crate::bills::aggregators::aggregate;
->>>>>>> 8fec533 (fix: aggregation by time and metrics works with hours)
 
 #[derive(Default)]
 pub struct BillableAggregatorService {
@@ -116,6 +113,7 @@ impl BillableAggregatorService {
 
         Ok(())
     }
+
 
     async fn lifecycle(&mut self) -> Result<(), anyhow::Error> {
         let mut fail_count = 0;

@@ -19,6 +19,10 @@ const READINESS_SERVER_ADDRESS: &SocketAddr =
     &SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 3038);
 const READINESS_SERVER_ENDPOINT: &str = "/health";
 
+const READINESS_SERVER_ADDRESS: &SocketAddr =
+    &SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 3038);
+const READINESS_SERVER_ENDPOINT: &str = "/health";
+
 #[derive(Default)]
 pub struct BillableBuilderService {
     pub rules: Arc<RwLock<HashMap<BillableRuleId, BillableRule>>>,
