@@ -1,8 +1,12 @@
 use anyhow::Context;
 use async_trait::async_trait;
-use axum::{Router, Server};
+use axum::Server;
 use common::{messaging::tokio_broadcast::CrossbeamMessagingFactory, AsterService};
+use router::get_router;
 use sqlx::{postgres::PgPoolOptions, PgPool};
+mod dto;
+mod router;
+pub mod routes;
 const SERVICE_PORT: u16 = 3036;
 
 #[derive(Debug, Default)]
@@ -30,7 +34,7 @@ impl AsterService for DashboardServer {
         Ok(())
     }
     async fn run(&mut self) -> Result<(), anyhow::Error> {
-        let router = Router::new();
+        let router = get_router(self.pool.take().unwrap());
 
         // run the server
 

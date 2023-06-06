@@ -9,7 +9,13 @@ edition = "2021"
 anyhow = { workspace = true }
 async-trait = { workspace = true }
 axum = { workspace = true }
-log = {workspace = true }
-sqlx = { workspace = true , features = ["runtime-tokio-native-tls", "postgres", "chrono"  ] }
+log = { workspace = true }
+sqlx = { workspace = true, features = [
+  "runtime-tokio-native-tls",
+  "postgres",
+  "chrono",
+] }
 tokio = { workspace = true, features = ["full"] }
 common = { path = "../common" }
+serde = { workspace = true, features = ["derive"] }
+chrono = { version = "0.4.26", features = ["serde"] }
