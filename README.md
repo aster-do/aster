@@ -47,8 +47,8 @@
 
 - [:notebook\_with\_decorative\_cover: Table of Contents](#notebook_with_decorative_cover-table-of-contents)
   - [:star2: About the Project](#star2-about-the-project)
-    - [:building\_construction: Architecture](#building_construction-architecture)
     - [:dart: Features](#dart-features)
+  - [:building\_construction: Architecture](docs/architecture.md)
   - [:toolbox: Getting Started](#toolbox-getting-started)
     - [:bangbang: Prerequisites](#bangbang-prerequisites)
     - [:test\_tube: Running Tests](#test_tube-running-tests)
@@ -64,14 +64,6 @@
 ## :star2: About the Project
 
 Aster is designed to efficiently collect metrics from a REST API, transform them into chargeable data, expose the API and SDKs, create invoices and bills, and generate alerts based on specified rules.
-
-<!-- Screenshots -->
-### :building_construction: Architecture
-
-<div align="center"> 
-  <img src="assets/aster-archi.png" alt="Aster architecture" />
-</div>
-
 
 
 <!-- Features -->
