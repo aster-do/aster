@@ -13,7 +13,7 @@ impl RuleService {
         }
     }
 
-    pub async fn _create_rule(&self, rule: _AlertingRule) -> _AlertingRule {
+    pub async fn _create_rule(&self, rule: _AlertingRule) -> anyhow::Result<_AlertingRule> {
         let database_service = self.database_service.as_ref().unwrap();
         println!("{:?}", rule);
         database_service._create_rule(rule).await
@@ -28,17 +28,17 @@ impl RuleService {
         &self,
         _rule_id: String,
         _rule: _AlertingRule,
-    ) -> Option<_AlertingRule> {
+    ) -> anyhow::Result<Option<_AlertingRule>> {
         let database_service = self.database_service.as_ref().unwrap();
         database_service._update_rule(_rule_id, _rule).await
     }
 
-    pub async fn _get_rules(&self) -> Vec<_AlertingRule> {
+    pub async fn _get_rules(&self) -> anyhow::Result<Vec<_AlertingRule>> {
         let database_service = self.database_service.as_ref().unwrap();
         database_service._get_rules().await
     }
 
-    pub async fn _get_rule(&self, _rule_id: String) -> Option<_AlertingRule> {
+    pub async fn _get_rule(&self, _rule_id: String) -> anyhow::Result<Option<_AlertingRule>> {
         let database_service = self.database_service.as_ref().unwrap();
         database_service._get_rule(_rule_id).await
     }
