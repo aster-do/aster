@@ -35,17 +35,17 @@ impl AsterService for BillableBuilderService {
         self.rules = vec![
             BillableRule {
                 id: Some(1),
-                version: Some(1),
                 name: "cpu".to_string(),
                 operation: BillableOperation::Multiply,
                 number: 1,
+                version: Some(1),
             },
             BillableRule {
                 id: Some(2),
-                version: Some(1),
                 name: "memory".to_string(),
                 operation: BillableOperation::Multiply,
                 number: 3,
+                version: Some(1),
             },
         ];
 
