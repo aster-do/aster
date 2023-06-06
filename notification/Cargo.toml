@@ -11,6 +11,6 @@ common = { path = "../common" }
 async-trait = { workspace = true }
 anyhow = { workspace = true }
 log = { workspace = true }
-async-graphql = { version = "5.0.9", features = ["dynamic-schema"]}
-async-graphql-axum = "5.0.9"
+async-graphql = {  workspace = true, features = ["dynamic-schema"] }
+async-graphql-axum = { workspace = true }
 axum = { workspace = true }

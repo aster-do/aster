@@ -7,8 +7,8 @@ edition = "2021"
 
 [dependencies]
 common = { path = "../common" }
-async-graphql = { version = "5.0.9", features = ["dynamic-schema"]}
-async-graphql-axum = "5.0.9"
+async-graphql = {  workspace = true , features = ["dynamic-schema"]}
+async-graphql-axum = { workspace = true }
 axum = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"]}
 async-trait = { workspace = true }
