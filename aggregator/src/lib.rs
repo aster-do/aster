@@ -4,7 +4,7 @@ use async_trait::async_trait;
 
 use common::models::billable::BillableSQL;
 
-use common::{messaging::crossbeam::CrossbeamMessagingFactory, services::AsterService};
+use common::{messaging::tokio_broadcast::CrossbeamMessagingFactory, services::AsterService};
 use log::{error, info};
 use sqlx::{query, query_as, PgPool};
 use tokio::time::{sleep, Duration};

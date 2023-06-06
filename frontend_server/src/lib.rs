@@ -2,7 +2,7 @@ use std::path::Path;
 
 use async_trait::async_trait;
 use axum::{Router, Server};
-use common::messaging::crossbeam::CrossbeamMessagingFactory;
+use common::messaging::tokio_broadcast::CrossbeamMessagingFactory;
 use common::AsterService;
 use tower_http::services::{ServeDir, ServeFile};
 

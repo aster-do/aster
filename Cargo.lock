@@ -69,11 +69,15 @@ name = "alerting"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "async-graphql",
+ "async-graphql-axum",
  "async-trait",
+ "axum",
  "chrono",
  "common",
  "log",
  "notification",
+ "tokio",
 ]
 
 [[package]]
@@ -435,9 +439,9 @@ dependencies = [
  "anyhow",
  "async-trait",
  "chrono",
- "crossbeam-channel",
  "sqlx",
  "thiserror",
+ "tokio",
 ]
 
 [[package]]
@@ -1402,7 +1406,10 @@ name = "notification"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "async-graphql",
+ "async-graphql-axum",
  "async-trait",
+ "axum",
  "chrono",
  "common",
  "log",

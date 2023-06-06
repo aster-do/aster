@@ -1,10 +1,10 @@
 use async_trait::async_trait;
 
-pub mod crossbeam;
+pub mod tokio_broadcast;
 
-pub use crossbeam::{CrossbeamReceiver, CrossbeamSender};
+pub use tokio_broadcast::{TokioBroadcastReceiver, TokioBroadcastSender};
 
-use self::crossbeam::{BillableReceiver, BillableSender, MetricReceiver, MetricSender};
+use self::tokio_broadcast::{BillableReceiver, BillableSender, MetricReceiver, MetricSender};
 
 #[async_trait]
 pub trait AsyncReceiver<T, E: std::error::Error> {

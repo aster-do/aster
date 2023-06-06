@@ -12,3 +12,8 @@ async-trait = { workspace = true }
 notification = { path = "../notification" }
 anyhow = { workspace = true }
 log = { workspace = true }
+async-graphql = { version = "5.0.9", features = ["dynamic-schema"]}
+async-graphql-axum = "5.0.9"
+axum = { workspace = true }
+tokio = { workspace = true, features = ["full","tracing"] }
+

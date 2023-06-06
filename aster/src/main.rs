@@ -16,7 +16,7 @@ async fn main() -> Result<(), anyhow::Error> {
 
     info!("Starting Aster");
 
-    let mut _messager = common::messaging::crossbeam::CrossbeamMessagingFactory::default();
+    let mut _messager = common::messaging::tokio_broadcast::CrossbeamMessagingFactory::default();
 
     // Create and init here
     info!("Initializing services");
@@ -27,6 +27,8 @@ async fn main() -> Result<(), anyhow::Error> {
         Box::<connector::ConnectorService>::default(),
         Box::<billable::BillableBuilderService>::default(),
         Box::<aggregator::BillableAggregatorService>::default(),
+        Box::<alerting::AlertingInterface>::default(),
+        Box::<notification::NotificationInterface>::default(),
     ];
 
     info!("Init services");
