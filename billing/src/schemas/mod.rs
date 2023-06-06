@@ -12,55 +12,75 @@ pub struct QueryRoot;
 
 #[async_graphql::Object]
 impl QueryRoot {
-    async fn billing(&self, _id: Option<ID>) -> Vec<Billing> {
+    async fn billing(&self, id: Option<ID>) -> Vec<Billing> {
         // TODO: Get the billing from the database
 
         let billings = vec![
             Billing {
                 id: ID::from("1".to_owned()),
-                generated_at: 1627776000,
+                generated_at: chrono::DateTime::parse_from_rfc3339("2023-06-06T13:23:04+00:00")
+                    .unwrap()
+                    .with_timezone(&Utc),
                 items: vec![
                     BillingItem {
                         id: ID::from("1".to_owned()),
                         name: "cpu".to_owned(),
                         value: 1.0,
                         price: 1.0,
-                        timestamp: 1627776001,
+                        timestamp: chrono::DateTime::parse_from_rfc3339(
+                            "2023-06-06T13:23:04+00:00",
+                        )
+                        .unwrap()
+                        .with_timezone(&Utc),
                     },
                     BillingItem {
                         id: ID::from("2".to_owned()),
                         name: "storage".to_owned(),
                         value: 3.4,
                         price: 2.0,
-                        timestamp: 1627776002,
+                        timestamp: chrono::DateTime::parse_from_rfc3339(
+                            "2023-06-06T13:23:04+00:00",
+                        )
+                        .unwrap()
+                        .with_timezone(&Utc),
                     },
                 ],
                 total_price: 1.0 + 3.4 * 2.0,
             },
             Billing {
                 id: ID::from("2".to_owned()),
-                generated_at: 1627776010,
+                generated_at: chrono::DateTime::parse_from_rfc3339("2023-06-06T13:23:04+00:00")
+                    .unwrap()
+                    .with_timezone(&Utc),
                 items: vec![
                     BillingItem {
                         id: ID::from("1".to_owned()),
                         name: "cpu".to_owned(),
                         value: 1.0,
                         price: 1.0,
-                        timestamp: 1627776003,
+                        timestamp: chrono::DateTime::parse_from_rfc3339(
+                            "2023-06-06T13:23:04+00:00",
+                        )
+                        .unwrap()
+                        .with_timezone(&Utc),
                     },
                     BillingItem {
                         id: ID::from("2".to_owned()),
                         name: "storage".to_owned(),
                         value: 3.9,
                         price: 2.0,
-                        timestamp: 1627776004,
+                        timestamp: chrono::DateTime::parse_from_rfc3339(
+                            "2023-06-06T13:23:04+00:00",
+                        )
+                        .unwrap()
+                        .with_timezone(&Utc),
                     },
                 ],
                 total_price: 1.0 + 3.9 * 2.0,
             },
         ];
 
-        match _id {
+        match id {
             Some(id) => billings
                 .into_iter()
                 .filter(|billing| billing.id == id)
@@ -78,27 +98,33 @@ impl MutationRoot {
         // TODO: Generate the billing from the database
 
         let id = ID::from("1".to_string());
-        let generated_at = Utc::now().timestamp();
+        let generated_at = Utc::now();
         let items = vec![
             BillingItem {
                 id: "3".into(),
                 name: "memory".into(),
                 price: 10.99,
-                timestamp: 1686052774,
+                timestamp: chrono::DateTime::parse_from_rfc3339("2023-06-06T13:23:04+00:00")
+                    .unwrap()
+                    .with_timezone(&Utc),
                 value: 1.0,
             },
             BillingItem {
                 id: "4".into(),
                 name: "cpu".into(),
                 price: 1.99,
-                timestamp: 1686052775,
+                timestamp: chrono::DateTime::parse_from_rfc3339("2023-06-06T13:23:04+00:00")
+                    .unwrap()
+                    .with_timezone(&Utc),
                 value: 3.5,
             },
             BillingItem {
                 id: "5".into(),
                 name: "cpu".into(),
                 price: 2.30,
-                timestamp: 1686052776,
+                timestamp: chrono::DateTime::parse_from_rfc3339("2023-06-06T13:23:04+00:00")
+                    .unwrap()
+                    .with_timezone(&Utc),
                 value: 4.0,
             },
         ];
