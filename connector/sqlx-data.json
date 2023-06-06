@@ -1,0 +1,18 @@
+{
+  "db": "PostgreSQL",
+  "4ef251f7fd213c881b3fe353e92b8f43437452503878ee767d6d586a23633603": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Int8",
+          "Timestamp",
+          "Float8"
+        ]
+      }
+    },
+    "query": "INSERT INTO billable (name, price, timestamp, value, treated) VALUES ($1, $2, $3, $4, false)"
+  }
+}
