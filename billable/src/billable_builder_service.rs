@@ -61,12 +61,16 @@ impl AsterService for BillableBuilderService {
                 }
             };
 
+            log::debug!("Received metric: {:?}", metric);
             let billable = transform(&metric, self.rules.clone());
+            log::debug!("Sending billable: {:?}", billable);
 
             match billable_sender.clone().send(billable).await {
                 Ok(_) => (),
                 Err(e) => log::error!("Error sending billable: {:?}", e),
             }
+
+            log::debug!("Billable sent");
         }
     }
 }
