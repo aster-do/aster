@@ -18,3 +18,25 @@ pub struct BillableSQL {
     pub value: f64,
     pub treated: bool,
 }
+
+#[derive(Clone, Debug, PartialEq, PartialOrd, sqlx::FromRow)]
+pub struct BillableAggregate {
+    pub name: String,                     // composite
+    pub timestamp: chrono::DateTime<Utc>, // key
+    pub min: f64,
+    pub max: f64,
+    pub avg: f64,
+    pub count: f64,
+    pub sum: f64,
+}
+
+/// OAT = Of All Times: this is the aggregation of all the billables since launch
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
+pub struct BillableAggregateOAT {
+    pub name: String,
+    pub min: f64,
+    pub max: f64,
+    pub avg: f64,
+    pub count: f64,
+    pub sum: f64,
+}
