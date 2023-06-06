@@ -10,6 +10,7 @@ use axum::{
     routing::get,
     Router, Server,
 };
+use common::monitoring::readiness_handler;
 use log::info;
 
 use crate::services::channel::ChannelService;
@@ -18,14 +19,16 @@ pub struct ChannelController {
     //Config & stateful info
     _channel_service: ChannelService,
     http_address: SocketAddr,
+    readiness_endpoint: String,
 }
 
 impl ChannelController {
-    pub fn new(http_address: SocketAddr) -> Result<Self> {
+    pub fn new(http_address: SocketAddr, readiness_endpoint: String) -> Result<Self> {
         Ok(Self {
             //Config & stateful info
             _channel_service: ChannelService::new()?,
             http_address,
+            readiness_endpoint,
         })
     }
 
@@ -34,6 +37,7 @@ impl ChannelController {
 
         let app = Router::new()
             .route("/", get(Self::graphiql).post(Self::graphql_handler))
+            .route(&self.readiness_endpoint, get(readiness_handler))
             .layer(Extension(schema));
 
         info!("Starting GraphQL server at {}", self.http_address);

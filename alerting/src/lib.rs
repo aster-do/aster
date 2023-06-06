@@ -20,6 +20,7 @@ pub struct AlertingInterface {
 
 const PORT: u16 = 3031;
 const ADDRESS: IpAddr = IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1));
+const READINESS_SERVER_ENDPOINT: &str = "/health";
 
 #[async_trait]
 impl AsterService for AlertingInterface {
@@ -33,7 +34,10 @@ impl AsterService for AlertingInterface {
         )?);
 
         debug!("Initializing rule controller");
-        self.rule_controller = Some(RuleController::new(SocketAddr::new(ADDRESS, PORT))?);
+        self.rule_controller = Some(RuleController::new(
+            SocketAddr::new(ADDRESS, PORT),
+            READINESS_SERVER_ENDPOINT.to_string(),
+        )?);
 
         Ok(())
     }

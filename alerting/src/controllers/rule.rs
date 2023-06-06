@@ -10,6 +10,7 @@ use axum::{
     routing::get,
     Router, Server,
 };
+use common::monitoring::readiness_handler;
 use log::info;
 
 use crate::services::rule::RuleService;
@@ -19,14 +20,16 @@ pub struct RuleController {
     //Config & stateful info
     _rule_service: RuleService,
     http_address: SocketAddr,
+    readiness_endpoint: String,
 }
 
 impl RuleController {
-    pub fn new(http_address: SocketAddr) -> Result<Self> {
+    pub fn new(http_address: SocketAddr, readiness_endpoint: String) -> Result<Self> {
         Ok(Self {
             //Config & stateful info
             _rule_service: RuleService::new()?,
             http_address,
+            readiness_endpoint,
         })
     }
 
@@ -35,6 +38,7 @@ impl RuleController {
 
         let app = Router::new()
             .route("/", get(Self::graphiql).post(Self::graphql_handler))
+            .route(&self.readiness_endpoint, get(readiness_handler))
             .layer(Extension(schema));
 
         info!("Starting GraphQL server at {}", self.http_address);

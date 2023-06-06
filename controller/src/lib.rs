@@ -1,8 +1,19 @@
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+
+use anyhow::anyhow;
+use axum::{routing::get, Router, Server};
 use billable_rule_service::BillableRuleService;
-use common::{messaging::tokio_broadcast::CrossbeamMessagingFactory, AsterService};
+use common::{
+    messaging::tokio_broadcast::CrossbeamMessagingFactory, monitoring::readiness_handler,
+    AsterService,
+};
 use log::info;
 
 pub mod billable_rule_service;
+
+const READINESS_SERVER_ADDRESS: &SocketAddr =
+    &SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 3032);
+const READINESS_SERVER_ENDPOINT: &str = "/health";
 
 pub struct ControllerService {
     pub billable_rules_service: Option<BillableRuleService>,
@@ -41,14 +52,16 @@ impl AsterService for ControllerService {
     async fn run(&mut self) -> Result<(), anyhow::Error> {
         info!("ControllerService is running");
 
-        let rules = self
-            .billable_rules_service
-            .as_ref()
-            .unwrap()
-            .get_all()
-            .await?;
+        let rules = self.billable_rules_service.as_ref().unwrap().get_all();
 
-        info!("{:?}", rules);
+        let readiness_app = Router::new().route(READINESS_SERVER_ENDPOINT, get(readiness_handler));
+        let readiness_server =
+            Server::bind(READINESS_SERVER_ADDRESS).serve(readiness_app.into_make_service());
+
+        let (readiness_result, lifecycle_result) = tokio::join!(readiness_server, rules);
+        readiness_result.map_err(|e| anyhow!("Readiness server failed").context(e))?;
+        lifecycle_result
+            .map_err(|e| anyhow!("BillableBuilderService lifecycle failed").context(e))?;
 
         Ok(())
     }

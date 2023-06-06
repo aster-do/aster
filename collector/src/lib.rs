@@ -2,7 +2,10 @@ pub mod metric;
 
 use anyhow::anyhow;
 use async_trait::async_trait;
-use axum::{routing::post, Router};
+use axum::{
+    routing::{get, post},
+    Router,
+};
 use log::info;
 use std::net::SocketAddr;
 
@@ -11,6 +14,7 @@ use common::{
         tokio_broadcast::{CrossbeamMessagingFactory, MetricSender},
         MessagingFactory,
     },
+    monitoring::readiness_handler,
     AsterService,
 };
 
@@ -22,6 +26,7 @@ pub struct ConnectorService {
 }
 
 const SERVICE_PORT: u16 = 3035;
+const READINESS_SERVER_ENDPOINT: &str = "/health";
 
 #[derive(Clone)]
 struct ConnectorServiceState {
@@ -60,6 +65,7 @@ impl AsterService for ConnectorService {
 
         let router = Router::new()
             .route("/metrics", post(create_metric))
+            .route(READINESS_SERVER_ENDPOINT, get(readiness_handler))
             .with_state(shared_state);
 
         let port = self.state.as_mut().expect("Port not initialized").port;

@@ -1,11 +1,20 @@
+use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+
 use crate::transformer::transform;
+use anyhow::anyhow;
 use async_trait::async_trait;
+use axum::{routing::get, Router, Server};
 use common::messaging::tokio_broadcast::{
     BillableSender, CrossbeamMessagingFactory, MetricReceiver,
 };
 use common::messaging::{AsyncReceiver, AsyncSender, MessagingFactory};
 use common::models::billable_rules::billable_rule::{BillableOperation, BillableRule};
+use common::monitoring::readiness_handler;
 use common::AsterService;
+
+const READINESS_SERVER_ADDRESS: &SocketAddr =
+    &SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 3038);
+const READINESS_SERVER_ENDPOINT: &str = "/health";
 
 #[derive(Default)]
 pub struct BillableBuilderService {
@@ -42,6 +51,22 @@ impl AsterService for BillableBuilderService {
 
     async fn run(&mut self) -> Result<(), anyhow::Error> {
         log::info!("BillableBuilderService running");
+
+        let readiness_app = Router::new().route(READINESS_SERVER_ENDPOINT, get(readiness_handler));
+        let readiness_server =
+            Server::bind(READINESS_SERVER_ADDRESS).serve(readiness_app.into_make_service());
+
+        let (readiness_result, lifecycle_result) = tokio::join!(readiness_server, self.lifecycle());
+        readiness_result.map_err(|e| anyhow!("Readiness server failed").context(e))?;
+        lifecycle_result
+            .map_err(|e| anyhow!("BillableBuilderService lifecycle failed").context(e))?;
+
+        Ok(())
+    }
+}
+
+impl BillableBuilderService {
+    async fn lifecycle(&self) -> Result<(), anyhow::Error> {
         let metric_receiver = self.metric_receiver.clone().ok_or_else(|| {
             anyhow::anyhow!("Metric receiver not initialized. Did you forget to call init()?")
         })?;
