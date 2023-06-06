@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 common = { path = "../common" }
 async-trait = { workspace = true }
-sqlx = { workspace = true , features = [ "runtime-tokio-native-tls", "postgres", "chrono" ] }
+sqlx = { workspace = true , features = [ "runtime-tokio-native-tls", "postgres", "chrono", "offline" ] }
 anyhow = { workspace = true }
 thiserror = { workspace = true }
 chrono = { workspace = true }
