@@ -1,5 +1,5 @@
 use common::models::billable_rules::{
-    billable_rule::BillableRule, billable_rule_persistent::BillableRulePersistent,
+    billable_rule_dto::BillableRuleDto, billable_rule_persistent::BillableRulePersistent,
 };
 use sqlx::{postgres::PgConnectOptions, PgPool, Pool, Postgres};
 use std::str::FromStr;
@@ -23,22 +23,22 @@ impl BillableRuleService {
 
     pub async fn create(
         &self,
-        rule: &BillableRule,
+        rule: &BillableRuleDto,
     ) -> Result<BillableRulePersistent, anyhow::Error> {
         let rule_persistent = BillableRulePersistent::from(rule)?;
 
-        let rule = sqlx::query_as!(
+        let rule_persistent = sqlx::query_as!(
             BillableRulePersistent,
             "INSERT INTO billable_rule (name, operation, number, version) VALUES ($1, $2, $3, $4) RETURNING id, name, operation as \"operation: _\", number, version",
             rule_persistent.name,
             rule_persistent.operation as _,
             rule_persistent.number as i32,
-            rule_persistent.version
+            1
         )
         .fetch_one(&self.pool)
         .await?;
 
-        Ok(rule)
+        Ok(rule_persistent)
     }
 
     pub async fn get_all(&self) -> Result<Vec<BillableRulePersistent>, anyhow::Error> {
@@ -77,7 +77,7 @@ impl BillableRuleService {
             rule.name,
             rule.operation as _,
             rule.number as i32,
-            rule.version,
+            rule.version + 1,
             rule.id
         )
         .fetch_one(&self.pool)
