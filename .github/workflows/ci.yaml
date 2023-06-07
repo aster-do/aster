@@ -47,6 +47,9 @@ jobs:
       - name: Build
         run: cargo build -p ${{ matrix.component }}
 
+      - name: Test
+        run: cargo test -p ${{ matrix.component }}
+
       - name: Lint
         run: cargo clippy -p ${{ matrix.component }} --no-deps -- -D warnings
 
