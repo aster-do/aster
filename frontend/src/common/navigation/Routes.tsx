@@ -2,7 +2,7 @@ import React from 'react';
 import { AccountRole } from '../models/account';
 import Layout from './Layout';
 import { NavigationRoute } from './models';
-import AsterHome from './AsterHome';
+import Redirect from '../components/Redirect';
 
 const DashboardRoutes: NavigationRoute = {
   name: 'AsterHome',
@@ -16,7 +16,13 @@ const DashboardRoutes: NavigationRoute = {
       path: '',
       roles: [AccountRole.USER, AccountRole.OWNER, AccountRole.MANAGER],
       navbarVisible: false,
-      element: <AsterHome />,
+      element: (
+        <Redirect
+          userRoute="/dashboard"
+          ownerRoute="/dashboard"
+          managerRoute="/account"
+        />
+      ),
     },
   ],
 };
