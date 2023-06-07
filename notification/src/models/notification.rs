@@ -2,15 +2,17 @@ use chrono::{DateTime, Utc};
 
 #[derive(Debug)]
 pub struct Notification {
-    _notification_channel_id: String,
-    _status: NotificationStatus,
+    pub notification_channel_id: String,
+    pub status: NotificationStatus,
+    pub message: String,
 }
 
 impl Notification {
-    pub fn new(_notification_channel_id: String) -> Self {
+    pub fn new(notification_channel_id: String, message: String) -> Self {
         Self {
-            _notification_channel_id,
-            _status: NotificationStatus::Sent(Utc::now()),
+            notification_channel_id,
+            status: NotificationStatus::Sent(Utc::now()),
+            message,
         }
     }
 }
