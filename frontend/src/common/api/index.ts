@@ -57,14 +57,15 @@ export async function runPutRequest<ReturnType, BodyType>(
   return runRequest<ReturnType, BodyType>(url, HttpMethod.PUT, body, headers);
 }
 
-export async function runDeleteRequest<ReturnType>(
+export async function runDeleteRequest<ReturnType, BodyType>(
   url: string,
+  body?: BodyType,
   headers: HeadersInit = {}
 ): Promise<ApiResponse<ReturnType>> {
-  return runRequest<ReturnType, undefined>(
+  return runRequest<ReturnType, BodyType>(
     url,
     HttpMethod.DELETE,
-    undefined,
+    body,
     headers
   );
 }

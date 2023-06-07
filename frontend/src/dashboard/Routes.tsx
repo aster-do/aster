@@ -4,7 +4,7 @@ import Layout from './Layout';
 import { AccountRole } from '../common/models/account';
 import Earnings from './components/Earnings';
 import Costs from './components/Costs';
-import DashboardHome from './components/DashboardHome';
+import Redirect from '../common/components/Redirect';
 
 const DashboardRoutes: NavigationRoute = {
   name: 'Dashboard',
@@ -18,7 +18,12 @@ const DashboardRoutes: NavigationRoute = {
       path: '',
       roles: [AccountRole.USER, AccountRole.OWNER],
       navbarVisible: false,
-      element: <DashboardHome />,
+      element: (
+        <Redirect
+          userRoute="/dashboard/earnings"
+          ownerRoute="/dashboard/earnings"
+        />
+      ),
     },
     {
       name: 'Earnings',
