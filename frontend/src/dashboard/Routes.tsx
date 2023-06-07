@@ -4,6 +4,7 @@ import Layout from './Layout';
 import { AccountRole } from '../common/models/account';
 import Earnings from './components/Earnings';
 import Costs from './components/Costs';
+import DashboardHome from './components/DashboardHome';
 
 const DashboardRoutes: NavigationRoute = {
   name: 'Dashboard',
@@ -12,6 +13,13 @@ const DashboardRoutes: NavigationRoute = {
   navbarVisible: true,
   element: <Layout />,
   subRoutes: [
+    {
+      name: 'Home',
+      path: '',
+      roles: [AccountRole.USER, AccountRole.OWNER],
+      navbarVisible: false,
+      element: <DashboardHome />,
+    },
     {
       name: 'Earnings',
       path: 'earnings',

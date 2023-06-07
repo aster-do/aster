@@ -34,7 +34,7 @@ export default function Navbar({ routes }: NavbarProps) {
       alignItems="center"
     >
       <Link to="/" style={{ width: '80%' }}>
-        <img src="/logo.png" alt="Aster logo" style={{ width: '100%' }} />
+        <img src="/title.png" alt="Aster logo" style={{ width: '100%' }} />
       </Link>
       <Stack direction="column" spacing={1} sx={{ width: '100%' }}>
         <SimpleSelect

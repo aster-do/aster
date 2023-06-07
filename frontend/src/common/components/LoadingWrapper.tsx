@@ -2,7 +2,7 @@ import { Box, CircularProgress } from '@mui/material';
 import React from 'react';
 
 export interface LoadingWrapperProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   loading?: boolean;
 }
 
