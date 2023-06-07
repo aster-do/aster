@@ -20,7 +20,6 @@ const MAX_FAIL_COUNT: u32 = 5;
 const READINESS_SERVER_ADDRESS: &SocketAddr =
     &SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 3037);
 const READINESS_SERVER_ENDPOINT: &str = "/health";
-use bills::tables::run_migrations;
 
 #[derive(Default)]
 pub struct BillableAggregatorService {
@@ -45,16 +44,6 @@ impl AsterService for BillableAggregatorService {
             .map_err(|e| anyhow!("Failed to connect to database").context(e))?,
         );
 
-        match self.connection {
-            Some(ref connection) => {
-                run_migrations(connection).await?;
-            }
-            None => {
-                error!("No connection to database");
-                return Err(anyhow::anyhow!("No connection to database"));
-            }
-        }
-
         Ok(())
     }
 
@@ -76,13 +65,10 @@ impl AsterService for BillableAggregatorService {
 
 impl BillableAggregatorService {
     async fn get_raw_billings(&self) -> Result<Vec<BillableSQL>, anyhow::Error> {
-        let results = query_as!(
-            BillableSQL,
-            "SELECT * FROM billables.BILLABLE WHERE TREATED = false"
-        )
-        .fetch_all(self.connection.as_ref().unwrap())
-        .await
-        .map_err(Box::new)?;
+        let results = query_as!(BillableSQL, "SELECT * FROM BILLABLE WHERE TREATED = false")
+            .fetch_all(self.connection.as_ref().unwrap())
+            .await
+            .map_err(Box::new)?;
 
         Ok(results)
     }
@@ -107,7 +93,7 @@ impl BillableAggregatorService {
 
         match futures_util::future::try_join(
             query!(
-                "UPDATE billables.BILLABLE SET TREATED = TRUE WHERE ID = ANY($1)",
+                "UPDATE BILLABLE SET TREATED = TRUE WHERE ID = ANY($1)",
                 &ids[..]
             )
             .execute(&mut transaction),
