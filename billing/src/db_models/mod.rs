@@ -9,6 +9,7 @@ pub struct BillablePersistence {
     pub treated: bool,
 }
 
+#[derive(Debug)]
 pub struct BillingPersistence {
     pub id: i32,
     pub generated_at: NaiveDateTime,
