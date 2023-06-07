@@ -29,7 +29,7 @@ pub enum _RuleTrigger {
 // implement from_string and to_string
 
 impl _RuleType {
-    pub fn from_string(rule_type: &str) -> Self {
+    pub fn _from_string(rule_type: &str) -> Self {
         match rule_type {
             "value_based" => _RuleType::_ValueBased,
             "price_based" => _RuleType::_PriceBased,
@@ -37,7 +37,7 @@ impl _RuleType {
         }
     }
 
-    pub fn to_string(&self) -> String {
+    pub fn _to_string(&self) -> String {
         match self {
             _RuleType::_ValueBased => "value_based".to_string(),
             _RuleType::_PriceBased => "price_based".to_string(),
@@ -46,7 +46,7 @@ impl _RuleType {
 }
 
 impl _RuleTrigger {
-    pub fn from_string(trigger: &str) -> Self {
+    pub fn _from_string(trigger: &str) -> Self {
         match trigger {
             "greater_than" => _RuleTrigger::_GreaterThan,
             "less_than" => _RuleTrigger::_LessThan,
@@ -56,7 +56,7 @@ impl _RuleTrigger {
         }
     }
 
-    pub fn to_string(&self) -> String {
+    pub fn _to_string(&self) -> String {
         match self {
             _RuleTrigger::_GreaterThan => "greater_than".to_string(),
             _RuleTrigger::_LessThan => "less_than".to_string(),
