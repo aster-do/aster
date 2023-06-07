@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use common::models::{
     billable_rules::billable_rule::{BillableOperation, BillableRule},
@@ -6,7 +6,10 @@ use common::models::{
 };
 use tokio::sync::RwLock;
 
-pub async fn transform(metric: &Metric, rules: Arc<RwLock<Vec<BillableRule>>>) -> Billable {
+pub async fn transform(
+    metric: &Metric,
+    rules: Arc<RwLock<HashMap<i32, BillableRule>>>,
+) -> Billable {
     let mut bill = Billable {
         price: 0,
         name: metric.name.clone(),
@@ -14,7 +17,7 @@ pub async fn transform(metric: &Metric, rules: Arc<RwLock<Vec<BillableRule>>>) -
         timestamp: metric.timestamp,
     };
 
-    for rule in rules.read().await.iter() {
+    for rule in rules.read().await.values() {
         if rule.name == metric.name {
             bill.price = match rule.operation {
                 BillableOperation::Add => (metric.value + rule.number as f64) as i64,
@@ -25,11 +28,14 @@ pub async fn transform(metric: &Metric, rules: Arc<RwLock<Vec<BillableRule>>>) -
             break;
         }
     }
+
     bill
 }
 
 #[cfg(test)]
 mod tests {
+    use common::models::billable_rules::billable_rule::BillableRuleId;
+
     use super::*;
 
     #[tokio::test]
@@ -68,8 +74,11 @@ mod tests {
         assert_eq!(billable.price, 0);
     }
 
-    fn get_rules() -> Arc<RwLock<Vec<BillableRule>>> {
-        Arc::new(RwLock::new(vec![
+    fn get_rules() -> Arc<RwLock<HashMap<BillableRuleId, BillableRule>>> {
+        let mut map = HashMap::new();
+
+        map.insert(
+            1,
             BillableRule {
                 id: 1,
                 name: "cpu".to_string(),
@@ -77,6 +86,10 @@ mod tests {
                 number: 200,
                 version: 1,
             },
+        );
+
+        map.insert(
+            2,
             BillableRule {
                 id: 2,
                 name: "memory".to_string(),
@@ -84,6 +97,8 @@ mod tests {
                 number: 0,
                 version: 1,
             },
-        ]))
+        );
+
+        Arc::new(RwLock::new(map))
     }
 }
