@@ -4,6 +4,8 @@ use async_graphql::{EmptySubscription, Schema, ID};
 use chrono::Utc;
 use structures::{Billable, Billing};
 
+use crate::services::database::DatabaseService;
+
 pub type BillingSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
 pub struct QueryRoot;
@@ -11,81 +13,23 @@ pub struct QueryRoot;
 #[async_graphql::Object]
 impl QueryRoot {
     async fn billing(&self, id: Option<ID>) -> Vec<Billing> {
-        // TODO: Get the billing from the database
-
-        let billings = vec![
-            Billing {
-                id: ID::from("1".to_owned()),
-                generated_at: chrono::DateTime::parse_from_rfc3339("2023-06-06T13:23:04+00:00")
-                    .unwrap()
-                    .with_timezone(&Utc),
-                items: vec![
-                    Billable {
-                        id: ID::from("1".to_owned()),
-                        name: "cpu".to_owned(),
-                        value: 1.0,
-                        price: 10,
-                        timestamp: chrono::DateTime::parse_from_rfc3339(
-                            "2023-06-06T13:23:04+00:00",
-                        )
-                        .unwrap()
-                        .with_timezone(&Utc),
-                        treated: false,
-                    },
-                    Billable {
-                        id: ID::from("2".to_owned()),
-                        name: "storage".to_owned(),
-                        value: 3.4,
-                        price: 20,
-                        timestamp: chrono::DateTime::parse_from_rfc3339(
-                            "2023-06-06T13:23:04+00:00",
-                        )
-                        .unwrap()
-                        .with_timezone(&Utc),
-                        treated: false,
-                    },
-                ],
-            },
-            Billing {
-                id: ID::from("2".to_owned()),
-                generated_at: chrono::DateTime::parse_from_rfc3339("2023-06-06T13:23:04+00:00")
-                    .unwrap()
-                    .with_timezone(&Utc),
-                items: vec![
-                    Billable {
-                        id: ID::from("1".to_owned()),
-                        name: "cpu".to_owned(),
-                        value: 1.0,
-                        price: 10,
-                        timestamp: chrono::DateTime::parse_from_rfc3339(
-                            "2023-06-06T13:23:04+00:00",
-                        )
-                        .unwrap()
-                        .with_timezone(&Utc),
-                        treated: false,
-                    },
-                    Billable {
-                        id: ID::from("2".to_owned()),
-                        name: "storage".to_owned(),
-                        value: 3.9,
-                        price: 20,
-                        timestamp: chrono::DateTime::parse_from_rfc3339(
-                            "2023-06-06T13:23:04+00:00",
-                        )
-                        .unwrap()
-                        .with_timezone(&Utc),
-                        treated: false,
-                    },
-                ],
-            },
-        ];
-
+        let database_service = DatabaseService::new().await;
         match id {
-            Some(id) => billings
+            Some(id) => {
+                let id = id.to_string().parse::<i32>().unwrap();
+                database_service
+                    ._get_billing(id)
+                    .await
+                    .unwrap()
+                    .into_iter()
+                    .collect()
+            }
+            None => database_service
+                ._get_billings()
+                .await
+                .unwrap()
                 .into_iter()
-                .filter(|billing| billing.id == id)
                 .collect(),
-            None => billings,
         }
     }
 }
