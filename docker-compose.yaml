@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 
 services:
   postgres:
@@ -8,7 +8,6 @@ services:
       - 5432:5432
     volumes:
       - postgres:/bitnami/postgresql
-      - ./scripts:/docker-entrypoint-initdb.d
     environment:
       - POSTGRESQL_USER=postgres
       - POSTGRESQL_PASSWORD=postgres
