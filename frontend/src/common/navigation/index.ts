@@ -1,11 +1,13 @@
 import { RouteObject } from 'react-router-dom';
 import { NavigationRoute } from './models';
+import NavigationRoutes from './Routes';
 import DashboardRoutes from '../../dashboard/Routes';
 import InvoiceRoutes from '../../invoice/Routes';
 import MetricsRoutes from '../../metrics/Routes';
 import NotifierRoutes from '../../notifier/Routes';
 
 export const navigationRoutes: NavigationRoute[] = [
+  NavigationRoutes,
   DashboardRoutes,
   InvoiceRoutes,
   MetricsRoutes,
