@@ -3,7 +3,6 @@ pub mod output;
 
 use async_graphql::{EmptySubscription, Schema, ID};
 use chrono::Utc;
-use input::BillingGenerationOptions;
 use output::{Billing, BillingItem};
 
 pub type BillingSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
@@ -94,7 +93,7 @@ pub struct MutationRoot;
 
 #[async_graphql::Object]
 impl MutationRoot {
-    async fn generate_billing(&self, _options: Option<BillingGenerationOptions>) -> Billing {
+    async fn generate_billing(&self, _date: Option<chrono::DateTime<Utc>>) -> Billing {
         // TODO: Generate the billing from the database
 
         let id = ID::from("1".to_string());

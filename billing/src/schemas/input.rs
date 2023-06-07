@@ -10,13 +10,3 @@ pub struct InputBillingItem {
     timestamp: chrono::DateTime<Utc>,
     value: f64,
 }
-
-#[derive(Debug, Clone, InputObject)]
-pub struct BillingGenerationOptions {
-    specific_date: Option<SpecificDate>,
-}
-
-#[derive(Debug, Clone, InputObject)]
-pub struct SpecificDate {
-    date: chrono::DateTime<Utc>,
-}
