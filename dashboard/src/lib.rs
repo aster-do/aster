@@ -2,6 +2,7 @@ use anyhow::Context;
 use async_trait::async_trait;
 use axum::Server;
 use common::{messaging::tokio_broadcast::CrossbeamMessagingFactory, AsterService};
+use log::debug;
 use router::get_router;
 use sqlx::{postgres::PgPoolOptions, PgPool};
 mod dto;
@@ -20,6 +21,8 @@ impl AsterService for DashboardServer {
         &mut self,
         _messaging: &mut CrossbeamMessagingFactory,
     ) -> Result<(), anyhow::Error> {
+        debug!("DashboardServer initializing");
+
         // read the database url from the environment
         let database_url = std::env::var("DATABASE_URL").context("DATABASE_URL not set")?;
 
@@ -31,14 +34,21 @@ impl AsterService for DashboardServer {
                 .await?,
         );
 
+        debug!("DashboardServer initialized");
         Ok(())
     }
     async fn run(&mut self) -> Result<(), anyhow::Error> {
+        debug!("Starting DashboardServer");
+
         let router = get_router(self.pool.take().unwrap());
+
+        let addr = format!("0.0.0.0:{}", SERVICE_PORT);
+
+        debug!("DashboardServer running on {}", addr);
 
         // run the server
 
-        Server::bind(&format!("0.0.0.0:{}", SERVICE_PORT).parse().unwrap())
+        Server::bind(&addr.parse().unwrap())
             .serve(router.into_make_service())
             .await?;
 
