@@ -7,9 +7,9 @@ type UrlParams = Record<
 
 function valueToString(value: UrlParamValue): string {
   if (value instanceof Date) {
-    return encodeURIComponent(value.toISOString());
+    return value.toISOString();
   }
-  return encodeURIComponent(value.toString());
+  return value.toString();
 }
 
 export default function createUrl(baseUrl: string, params: UrlParams): string {
