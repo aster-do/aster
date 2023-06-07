@@ -1,4 +1,4 @@
-pub struct AlertingRuleInsert {
+pub struct _AlertingRuleInsert {
     pub id: String,
     pub name: String,
     pub rule_type: String,
