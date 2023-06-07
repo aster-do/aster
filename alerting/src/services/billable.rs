@@ -9,14 +9,14 @@ pub struct BillableService {
 }
 
 impl BillableService {
-    pub fn new() -> Result<Self> {
+    pub async fn new() -> Result<Self> {
         Ok(Self {
             //Config & stateful info
             _notification_service: Notificationservice::new()?,
         })
     }
 
-    pub fn _handle_billable(&self, _billable: Billable) -> Result<()> {
+    pub async fn _handle_billable(&self, _billable: Billable) -> Result<()> {
         //TODO: Implement check if billable trigger alert logic
         Ok(())
     }

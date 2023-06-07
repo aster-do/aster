@@ -8,15 +8,15 @@ use crate::services::billable::BillableService;
 
 pub struct BillableController {
     //Config & stateful info
-    _billable_service: BillableService,
+    billable_service: BillableService,
     billable_receiver: BillableReceiver,
 }
 
 impl BillableController {
-    pub fn new(billable_receiver: BillableReceiver) -> Result<Self> {
+    pub async fn new(billable_receiver: BillableReceiver) -> Result<Self> {
         Ok(Self {
             //Config & stateful info
-            _billable_service: BillableService::new()?,
+            billable_service: BillableService::new().await?,
             billable_receiver,
         })
     }

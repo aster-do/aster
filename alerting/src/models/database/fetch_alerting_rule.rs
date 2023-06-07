@@ -1,4 +1,4 @@
-pub struct _AlertingRuleFetch {
+pub struct AlertingRuleFetch {
     pub id: String,
     pub name: String,
     pub rule_type: String,
