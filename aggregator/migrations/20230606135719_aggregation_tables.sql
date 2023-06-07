@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS billable (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     price BIGINT NOT NULL,
-    timestamp TIMESTAMP NOT NULL,
+    timestamp TIMESTAMP with time zone NOT NULL,
     value DOUBLE PRECISION NOT NULL,
     treated BOOLEAN NOT NULL DEFAULT false
 );
