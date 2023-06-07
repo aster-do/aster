@@ -33,16 +33,16 @@ async fn main() -> Result<(), anyhow::Error> {
     // Create and init here
     info!("Initializing services");
     let mut services: Vec<Box<dyn AsterService>> = vec![
-        Box::<frontend_server::FrontendServer>::default(),
-        Box::<BillingService>::default(),
+        // Box::<frontend_server::FrontendServer>::default(),
+        // Box::<BillingService>::default(),
         Box::<controller::ControllerService>::default(),
-        Box::<dashboard::DashboardServer>::default(),
-        Box::<connector::ConnectorService>::default(),
-        Box::<billable::BillableBuilderService>::default(),
-        Box::<aggregator::BillableAggregatorService>::default(),
-        Box::<alerting::AlertingInterface>::default(),
-        Box::<notification::NotificationInterface>::default(),
-        Box::<collector::ConnectorService>::default(),
+        // Box::<dashboard::DashboardServer>::default(),
+        // Box::<connector::ConnectorService>::default(),
+        // Box::<billable::BillableBuilderService>::default(),
+        // Box::<aggregator::BillableAggregatorService>::default(),
+        // Box::<alerting::AlertingInterface>::default(),
+        // Box::<notification::NotificationInterface>::default(),
+        // Box::<collector::ConnectorService>::default(),
     ];
 
     info!("Init services");
