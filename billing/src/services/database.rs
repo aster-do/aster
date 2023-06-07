@@ -1,11 +1,12 @@
 use async_graphql::ID;
-use chrono::Utc;
 use sqlx::postgres::{PgPool, PgPoolOptions};
 
 use crate::{
-    db_models::{BillablePersistence, BillingPersistence},
+    db_models::BillingPersistence,
     graphql_schemas::structures::{Billable, Billing},
 };
+
+use common::models::billable::BillableSQL;
 
 #[derive(Debug, Default)]
 pub struct DatabaseService {
@@ -43,7 +44,7 @@ impl DatabaseService {
 
         let billing_to_insert = BillingPersistence {
             id: billing.id.parse::<i32>()?,
-            generated_at: billing.generated_at.naive_utc(),
+            generated_at: billing.generated_at,
             items: Some(billable_ids.join(",")),
         };
 
@@ -97,7 +98,7 @@ impl DatabaseService {
 
         let billing_persistence = BillingPersistence {
             id: billing.id.parse::<i32>()?,
-            generated_at: billing.generated_at.naive_utc(),
+            generated_at: billing.generated_at,
             items: Some(billable_ids.join(",")),
         };
 
@@ -136,7 +137,7 @@ impl DatabaseService {
             // get all billable ids
             let mut billable_ids: Vec<i32> = Vec::new();
             if let Some(items) = billing_persistence.items {
-                for item in items.split(",") {
+                for item in items.split(',') {
                     billable_ids.push(item.parse::<i32>()?);
                 }
             }
@@ -153,10 +154,7 @@ impl DatabaseService {
 
             billings.push(Billing {
                 id: ID::from(billing_persistence.id),
-                generated_at: chrono::DateTime::<Utc>::from_utc(
-                    billing_persistence.generated_at,
-                    Utc,
-                ),
+                generated_at: billing_persistence.generated_at,
                 items: billables,
             });
         }
@@ -175,12 +173,12 @@ impl DatabaseService {
         .map_err(|e| anyhow::anyhow!("Billing : Failed to fetch rule: {}", e))?;
 
         match billing_persistence {
-            None => return Ok(None),
+            None => Ok(None),
             Some(billing_persistence) => {
                 // get all billable ids
                 let mut billable_ids: Vec<i32> = Vec::new();
                 if let Some(items) = billing_persistence.items {
-                    for item in items.split(",") {
+                    for item in items.split(',') {
                         billable_ids.push(item.parse::<i32>()?);
                     }
                 }
@@ -196,10 +194,7 @@ impl DatabaseService {
 
                 Ok(Some(Billing {
                     id: ID::from(billing_persistence.id),
-                    generated_at: chrono::DateTime::<Utc>::from_utc(
-                        billing_persistence.generated_at,
-                        Utc,
-                    ),
+                    generated_at: billing_persistence.generated_at,
                     items: billables,
                 }))
             }
@@ -207,8 +202,8 @@ impl DatabaseService {
     }
 
     pub async fn _get_billable(&self, billable_id: i32) -> anyhow::Result<Option<Billable>> {
-        let billable_persistence: Option<BillablePersistence> = sqlx::query_as!(
-            BillablePersistence,
+        let billable_persistence: Option<BillableSQL> = sqlx::query_as!(
+            BillableSQL,
             "SELECT * FROM billable WHERE id = $1",
             billable_id
         )
@@ -217,7 +212,7 @@ impl DatabaseService {
         .map_err(|e| anyhow::anyhow!("Billing : Failed to fetch billable: {}", e))?;
 
         match billable_persistence {
-            None => return Ok(None),
+            None => Ok(None),
             Some(billable_persistence) => Ok(Some(Billable::from(billable_persistence))),
         }
     }
