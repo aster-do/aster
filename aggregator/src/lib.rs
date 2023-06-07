@@ -3,6 +3,10 @@ pub mod bills;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 use anyhow::anyhow;
+use bills::AggregatesToBeWritten;
+use futures_util::{FutureExt, TryFutureExt};
+use sqlx::types::chrono::{DateTime, Utc};
+use sqlx::{Postgres, Transaction};
 use std::str::FromStr;
 
 use async_trait::async_trait;
@@ -77,10 +81,14 @@ impl BillableAggregatorService {
         Ok(results)
     }
 
-    async fn get_all_aggregates(&self) -> Result<Vec<BillableAggregate>, anyhow::Error> {
+    async fn get_all_aggregates_by_tz(
+        &self,
+        timezones: Vec<DateTime<Utc>>,
+    ) -> Result<Vec<BillableAggregate>, anyhow::Error> {
         let results = query_as!(
             BillableAggregate,
-            "SELECT * FROM billables.BILLABLE_AGGREGATE"
+            "SELECT * FROM billables.BILLABLE_AGGREGATE WHERE TIMESTAMP = ANY($1)",
+            &timezones[..]
         )
         .fetch_all(self.connection.as_ref().unwrap())
         .await
@@ -89,9 +97,57 @@ impl BillableAggregatorService {
         Ok(results)
     }
 
+    async fn upsert_aggregates(
+        &self,
+        aggregates: AggregatesToBeWritten,
+    ) -> Result<(), anyhow::Error> {
+        let mut transaction = match self.connection.as_ref() {
+            None => return Err(anyhow!("No connection to database")),
+            Some(connection) => connection.begin().await.map_err(Box::new)?,
+        };
+
+        for aggregate in aggregates.inserts {
+            query!(
+                "INSERT INTO billables.billable_aggregate(name, \"timestamp\", min, max, avg, count, sum) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+                aggregate.name,
+                aggregate.timestamp,
+                aggregate.min,
+                aggregate.max,
+                aggregate.avg,
+                aggregate.count,
+                aggregate.sum
+            )
+            .execute(&mut transaction)
+            .await?;
+        }
+
+        for aggregate in aggregates.updates {
+            query!(
+                "UPDATE billables.BILLABLE_AGGREGATE SET MIN = $1, MAX = $2, AVG = $3, COUNT = $4, SUM = $5  WHERE \"timestamp\" = $6 AND NAME = $7",
+                aggregate.min,
+                aggregate.max,
+                aggregate.avg,
+                aggregate.count,
+                aggregate.sum,
+                aggregate.timestamp,
+                aggregate.name
+            )
+            .execute(&mut transaction)
+            .await?;
+        }
+
+        transaction.commit().await?;
+
+        Ok(())
+    }
+
     pub async fn run_aggregation_pipeline(&mut self) -> Result<(), anyhow::Error> {
         let billings = self.get_raw_billings().await?;
-        let aggregates = self.get_all_aggregates().await?;
+        let timezones = billings
+            .iter()
+            .map(|b| b.timestamp)
+            .collect::<Vec<DateTime<Utc>>>();
+        let aggregates = self.get_all_aggregates_by_tz(timezones).await?;
 
         if billings.is_empty() {
             info!("No billings to aggregate");
@@ -103,7 +159,7 @@ impl BillableAggregatorService {
         let ids = billings.iter().map(|b| b.id).collect::<Vec<i32>>();
 
         // TODO toggle aggregation and insert what has been aggregated
-        let _aggregates = aggregate(billings, aggregates);
+        let aggregates = aggregate(billings, aggregates);
 
         // Because we are never too careful we start a transaction
         let mut transaction = self.connection.as_ref().unwrap().begin().await?;
@@ -113,12 +169,16 @@ impl BillableAggregatorService {
                 "UPDATE billables.BILLABLE SET TREATED = TRUE WHERE ID = ANY($1)",
                 &ids[..]
             )
-            .execute(&mut transaction),
-            futures_util::future::ok(()),
+            .execute(&mut transaction)
+            .map_err(|e| anyhow!("{}", e)),
+            self.upsert_aggregates(aggregates)
+                .map_err(|e| anyhow!("{}", e)),
         )
         .await
         {
-            Ok(_) => transaction.commit().await?,
+            Ok(_) => {
+                transaction.commit().await?;
+            }
             Err(e) => {
                 error!("Error updating billables: {}", e);
                 transaction.rollback().await?;

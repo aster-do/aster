@@ -85,10 +85,7 @@ fn aggregate_by_hour_and_metric(
         }
     });
 
-    AggregatesToBeWritten {
-        _inserts: inserts,
-        _updates: updates,
-    }
+    AggregatesToBeWritten { inserts, updates }
 }
 
 #[cfg(test)]
@@ -143,23 +140,23 @@ mod tests {
 
         let aggregated = aggregate(billings, vec![]);
 
-        assert!(aggregated._updates.is_empty());
-        assert_eq!(aggregated._inserts.len(), 3);
+        assert!(aggregated.updates.is_empty());
+        assert_eq!(aggregated.inserts.len(), 3);
 
-        assert_eq!(aggregated._inserts[0].name, "test");
-        assert_eq!(aggregated._inserts[0].sum, 4.0);
-        assert_eq!(aggregated._inserts[0].avg, 2.0);
-        assert_eq!(aggregated._inserts[0].count, 2.0);
-        assert_eq!(aggregated._inserts[0].min, 1.0);
-        assert_eq!(aggregated._inserts[0].max, 3.0);
-        assert_eq!(aggregated._inserts[1].name, "test2");
-        assert_eq!(aggregated._inserts[1].sum, 11.0);
-        assert_eq!(aggregated._inserts[2].name, "test2");
-        assert_eq!(aggregated._inserts[2].sum, 1234.0);
+        assert_eq!(aggregated.inserts[0].name, "test");
+        assert_eq!(aggregated.inserts[0].sum, 4.0);
+        assert_eq!(aggregated.inserts[0].avg, 2.0);
+        assert_eq!(aggregated.inserts[0].count, 2.0);
+        assert_eq!(aggregated.inserts[0].min, 1.0);
+        assert_eq!(aggregated.inserts[0].max, 3.0);
+        assert_eq!(aggregated.inserts[1].name, "test2");
+        assert_eq!(aggregated.inserts[1].sum, 11.0);
+        assert_eq!(aggregated.inserts[2].name, "test2");
+        assert_eq!(aggregated.inserts[2].sum, 1234.0);
 
         // we ensure that the hour is rounded down
         assert_eq!(
-            aggregated._inserts[0].timestamp,
+            aggregated.inserts[0].timestamp,
             chrono::Utc.with_ymd_and_hms(2023, 3, 2, 10, 0, 0).unwrap()
         );
     }
@@ -198,11 +195,11 @@ mod tests {
 
         let aggregated = aggregate(billings, previous_aggregates);
 
-        assert!(aggregated._inserts.is_empty());
-        assert_eq!(aggregated._updates.len(), 2);
+        assert!(aggregated.inserts.is_empty());
+        assert_eq!(aggregated.updates.len(), 2);
 
         assert_eq!(
-            aggregated._updates,
+            aggregated.updates,
             vec![
                 BillableAggregate {
                     name: "test".to_string(),
