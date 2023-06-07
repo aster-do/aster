@@ -42,8 +42,8 @@ export function useBillables({
   const url = createUrl(`${API_URL}/billables`, {
     operator,
     frequency: frequency === Frequency.NONE ? undefined : frequency,
-    start,
-    end,
+    start: frequency === Frequency.NONE ? undefined : start,
+    end: frequency === Frequency.NONE ? undefined : end,
     name,
   });
   const { data, error, isLoading } = useSWR(url, () =>
