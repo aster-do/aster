@@ -1,4 +1,3 @@
-use anyhow::{Ok, Result};
 use common::messaging::tokio_broadcast::BillableReceiver;
 use log::{debug, info};
 
@@ -13,7 +12,7 @@ pub struct BillableController {
 }
 
 impl BillableController {
-    pub async fn new(billable_receiver: BillableReceiver) -> Result<Self> {
+    pub async fn new(billable_receiver: BillableReceiver) -> Result<Self, anyhow::Error> {
         Ok(Self {
             //Config & stateful info
             billable_service: BillableService::new().await?,
@@ -21,7 +20,7 @@ impl BillableController {
         })
     }
 
-    pub async fn start(&self) -> Result<()> {
+    pub async fn start(&mut self) -> Result<(), anyhow::Error> {
         info!("Listening for billable messages");
 
         let mut receiver = self.billable_receiver.clone();
@@ -29,7 +28,7 @@ impl BillableController {
         loop {
             let billable = receiver.receive().await?;
             debug!("Received billable message: {:?}", billable);
-            //TODO: Process billable
+            self.billable_service.handle_billable(billable).await?;
         }
     }
 }

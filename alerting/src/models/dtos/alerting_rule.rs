@@ -26,7 +26,7 @@ impl From<AlertingRule> for AlertingRuleDTO {
             metric_name: value.metric_name,
             threshold: value.threshold,
             trigger: value.trigger.map(|t| t.into()),
-            duration: value.duration,
+            duration: value.grace_period,
             notification_channel_ids: value.notification_channel_ids,
             created_at: value.created_at.to_rfc3339(),
             updated_at: value.updated_at.to_rfc3339(),

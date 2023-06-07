@@ -1,6 +1,6 @@
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
-use anyhow::{anyhow, Result};
+use anyhow::anyhow;
 use async_trait::async_trait;
 use common::{messaging::MessagingFactory, AsterService};
 use controllers::{billable::BillableController, rule::RuleController};
@@ -27,7 +27,7 @@ impl AsterService for AlertingInterface {
     async fn init(
         &mut self,
         messaging: &mut common::messaging::tokio_broadcast::CrossbeamMessagingFactory,
-    ) -> Result<()> {
+    ) -> Result<(), anyhow::Error> {
         debug!("Initializing billable controller");
         self.billable_controller =
             Some(BillableController::new(messaging.create_billable_receiver().await).await?);
@@ -44,7 +44,7 @@ impl AsterService for AlertingInterface {
         Ok(())
     }
 
-    async fn run(&mut self) -> Result<()> {
+    async fn run(&mut self) -> Result<(), anyhow::Error> {
         debug!("Starting rule controller");
         let rule = self
             .rule_controller
