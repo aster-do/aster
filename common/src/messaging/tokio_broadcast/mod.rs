@@ -1,7 +1,9 @@
 pub mod billable;
+pub mod billable_rule;
 pub mod metric;
 
 pub use billable::{BillableReceiver, BillableSender};
+pub use billable_rule::{BillableRuleReceiver, BillableRuleSender};
 pub use metric::{MetricReceiver, MetricSender};
 
 use std::fmt::Debug;
@@ -77,6 +79,11 @@ impl<T: Clone + Send> AsyncSender<T, TokioBroadcastSenderError> for TokioBroadca
 pub struct CrossbeamMessagingFactory {
     billable_sender: tokio::sync::broadcast::Sender<crate::models::Billable>,
     billable_receiver: tokio::sync::broadcast::Receiver<crate::models::Billable>,
+    billable_rule_sender:
+        tokio::sync::broadcast::Sender<crate::models::billable_rules::billable_rule::BillableRule>,
+    billable_rule_receiver: tokio::sync::broadcast::Receiver<
+        crate::models::billable_rules::billable_rule::BillableRule,
+    >,
     metric_sender: tokio::sync::broadcast::Sender<crate::models::Metric>,
     metric_receiver: tokio::sync::broadcast::Receiver<crate::models::Metric>,
 }
@@ -86,11 +93,15 @@ impl CrossbeamMessagingFactory {}
 impl Default for CrossbeamMessagingFactory {
     fn default() -> Self {
         let (billable_sender, billable_receiver) = tokio::sync::broadcast::channel(CHANNEL_SIZE);
+        let (billable_rule_sender, billable_rule_receiver) =
+            tokio::sync::broadcast::channel(CHANNEL_SIZE);
         let (metric_sender, metric_receiver) = tokio::sync::broadcast::channel(CHANNEL_SIZE);
 
         Self {
             billable_sender,
             billable_receiver,
+            billable_rule_sender,
+            billable_rule_receiver,
             metric_sender,
             metric_receiver,
         }
@@ -105,6 +116,14 @@ impl super::MessagingFactory for CrossbeamMessagingFactory {
 
     async fn create_billable_receiver(&self) -> BillableReceiver {
         BillableReceiver::new(self.billable_receiver.resubscribe())
+    }
+
+    async fn create_billable_rule_sender(&self) -> BillableRuleSender {
+        BillableRuleSender::new(self.billable_rule_sender.clone())
+    }
+
+    async fn create_billable_rule_receiver(&self) -> BillableRuleReceiver {
+        BillableRuleReceiver::new(self.billable_rule_receiver.resubscribe())
     }
 
     async fn create_metric_sender(&self) -> MetricSender {
