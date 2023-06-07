@@ -4,7 +4,6 @@ use common::models::billable_rules::{
 use sqlx::{postgres::PgConnectOptions, PgPool, Pool, Postgres};
 use std::str::FromStr;
 
-#[derive(Clone)]
 pub struct BillableRuleService {
     pub pool: Pool<Postgres>,
 }

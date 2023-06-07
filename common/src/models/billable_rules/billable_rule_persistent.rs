@@ -1,5 +1,4 @@
 use anyhow::Ok;
-use serde::Serialize;
 
 use super::{billable_rule::BillableOperation, billable_rule_dto::BillableRuleDto};
 
@@ -9,7 +8,7 @@ use super::{billable_rule::BillableOperation, billable_rule_dto::BillableRuleDto
 /// Number is a u32 that represents the number to be used in the operation.
 /// For example, if the name is 'cpu', operation is Add and the number is 5,
 /// then the customer will be charged 5 times the cpu usage.
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd)]
 pub struct BillableRulePersistent {
     pub id: i32,
     pub name: String,
@@ -32,7 +31,7 @@ impl BillableRulePersistent {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, sqlx::Type, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, sqlx::Type)]
 #[sqlx(type_name = "billable_operation")]
 pub enum BillableOperationPersistent {
     Add,
