@@ -10,13 +10,9 @@ pub struct BillableRuleService {
 
 impl BillableRuleService {
     pub async fn new(db_url: &str) -> Self {
-        let pool = PgPool::connect_with(
-            PgConnectOptions::from_str(db_url)
-                .unwrap()
-                .options([("search_path", "controller")]),
-        )
-        .await
-        .expect("failed to connect to Postgres");
+        let pool = PgPool::connect_with(PgConnectOptions::from_str(db_url).unwrap())
+            .await
+            .expect("failed to connect to Postgres");
 
         Self { pool }
     }
