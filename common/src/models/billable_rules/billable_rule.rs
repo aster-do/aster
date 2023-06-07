@@ -1,10 +1,12 @@
+use serde::{Deserialize, Serialize};
+
 /// BillableRule is a struct that represents a rule for how to bill a customer
 /// for each operation. It contains a name, operation, and number.
 /// Operation is an enum that can be Add, Subtract, Multiply, or Divide.
 /// Number is a u32 that represents the number to be used in the operation.
 /// For example, if the name is 'cpu', operation is Add and the number is 5,
 /// then the customer will be charged 5 times the cpu usage.
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Serialize, Deserialize)]
 pub struct BillableRule {
     pub id: Option<i32>,
     pub name: String,
@@ -13,7 +15,7 @@ pub struct BillableRule {
     pub version: Option<i32>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Serialize, Deserialize)]
 pub enum BillableOperation {
     Add,
     Subtract,

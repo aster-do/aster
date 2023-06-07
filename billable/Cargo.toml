@@ -13,3 +13,4 @@ log = { workspace = true }
 anyhow = { workspace = true }
 tokio = { workspace = true, features = ["macros"] }
 axum = { workspace = true }
+reqwest = { workspace = true, features = ["json"] }
