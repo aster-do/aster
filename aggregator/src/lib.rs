@@ -24,7 +24,6 @@ const READINESS_SERVER_ADDRESS: &SocketAddr =
     &SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 3037);
 const READINESS_SERVER_ENDPOINT: &str = "/health";
 use crate::bills::aggregators::aggregate;
-use bills::tables::run_migrations;
 
 #[derive(Default)]
 pub struct BillableAggregatorService {
@@ -69,13 +68,10 @@ impl AsterService for BillableAggregatorService {
 
 impl BillableAggregatorService {
     async fn get_raw_billings(&self) -> Result<Vec<BillableSQL>, anyhow::Error> {
-        let results = query_as!(
-            BillableSQL,
-            "SELECT * FROM billables.BILLABLE WHERE TREATED = false"
-        )
-        .fetch_all(self.connection.as_ref().unwrap())
-        .await
-        .map_err(Box::new)?;
+        let results = query_as!(BillableSQL, "SELECT * FROM BILLABLE WHERE TREATED = false")
+            .fetch_all(self.connection.as_ref().unwrap())
+            .await
+            .map_err(Box::new)?;
 
         Ok(results)
     }
@@ -86,7 +82,7 @@ impl BillableAggregatorService {
     ) -> Result<Vec<BillableAggregate>, anyhow::Error> {
         let results = query_as!(
             BillableAggregate,
-            "SELECT * FROM billables.BILLABLE_AGGREGATE WHERE TIMESTAMP = ANY($1)",
+            "SELECT * FROM BILLABLE_AGGREGATE WHERE TIMESTAMP = ANY($1)",
             &timezones[..]
         )
         .fetch_all(self.connection.as_ref().unwrap())
@@ -107,7 +103,7 @@ impl BillableAggregatorService {
 
         for aggregate in aggregates.inserts {
             query!(
-                "INSERT INTO billables.billable_aggregate(name, \"timestamp\", min, max, avg, count, sum) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+                "INSERT INTO billable_aggregate(name, \"timestamp\", min, max, avg, count, sum) VALUES ($1, $2, $3, $4, $5, $6, $7)",
                 aggregate.name,
                 aggregate.timestamp,
                 aggregate.min,
@@ -122,7 +118,7 @@ impl BillableAggregatorService {
 
         for aggregate in aggregates.updates {
             query!(
-                "UPDATE billables.BILLABLE_AGGREGATE SET MIN = $1, MAX = $2, AVG = $3, COUNT = $4, SUM = $5  WHERE \"timestamp\" = $6 AND NAME = $7",
+                "UPDATE BILLABLE_AGGREGATE SET MIN = $1, MAX = $2, AVG = $3, COUNT = $4, SUM = $5  WHERE \"timestamp\" = $6 AND NAME = $7",
                 aggregate.min,
                 aggregate.max,
                 aggregate.avg,
@@ -165,7 +161,7 @@ impl BillableAggregatorService {
 
         match futures_util::future::try_join(
             query!(
-                "UPDATE billables.BILLABLE SET TREATED = TRUE WHERE ID = ANY($1)",
+                "UPDATE BILLABLE SET TREATED = TRUE WHERE ID = ANY($1)",
                 &ids[..]
             )
             .execute(&mut transaction)
@@ -189,7 +185,6 @@ impl BillableAggregatorService {
 
         Ok(())
     }
-
 
     async fn lifecycle(&mut self) -> Result<(), anyhow::Error> {
         let mut fail_count = 0;
