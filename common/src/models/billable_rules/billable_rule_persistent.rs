@@ -1,6 +1,6 @@
 use anyhow::Ok;
 
-use super::billable_rule::{BillableOperation, BillableRule};
+use super::{billable_rule::BillableOperation, billable_rule_dto::BillableRuleDto};
 
 /// BillableRule is a struct that represents a rule for how to bill a customer
 /// for each operation. It contains a name, operation, and number.
@@ -18,17 +18,13 @@ pub struct BillableRulePersistent {
 }
 
 impl BillableRulePersistent {
-    pub fn from(rule: &BillableRule) -> Result<Self, anyhow::Error> {
+    pub fn from(rule: &BillableRuleDto) -> Result<Self, anyhow::Error> {
         let billable_rule_persistent = Self {
-            id: rule
-                .id
-                .ok_or_else(|| anyhow::anyhow!("BillableRulePersistent::from: id is None"))?,
+            id: -1,
             name: rule.name.clone(),
             operation: BillableOperationPersistent::from(&rule.operation),
             number: rule.number as i32,
-            version: rule
-                .version
-                .ok_or_else(|| anyhow::anyhow!("BillableRulePersistent::from: version is None"))?,
+            version: -1,
         };
 
         Ok(billable_rule_persistent)
