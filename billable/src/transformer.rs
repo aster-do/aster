@@ -71,18 +71,18 @@ mod tests {
     fn get_rules() -> Arc<RwLock<Vec<BillableRule>>> {
         Arc::new(RwLock::new(vec![
             BillableRule {
-                id: Some(1),
+                id: 1,
                 name: "cpu".to_string(),
                 operation: BillableOperation::Multiply,
                 number: 200,
-                version: Some(1),
+                version: 1,
             },
             BillableRule {
-                id: Some(2),
+                id: 2,
                 name: "memory".to_string(),
                 operation: BillableOperation::Multiply,
                 number: 0,
-                version: Some(1),
+                version: 1,
             },
         ]))
     }
