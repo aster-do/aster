@@ -1,6 +1,6 @@
 {
   "db": "PostgreSQL",
-  "82efa43c891b09bfbe961a9d6821fff036f194f4faaa3998ad4ce0c1328ee303": {
+  "14facc64e07c3ffdf58985d11b7d000f39370edfc602dd9440de968eb71af1e2": {
     "describe": {
       "columns": [
         {
@@ -52,6 +52,217 @@
         "Left": []
       }
     },
-    "query": "SELECT id, name, operation as \"operation: _\", number FROM controller.billable_rule"
+    "query": "SELECT id, name, operation as \"operation: _\", number, version FROM controller.billable_rule"
+  },
+  "1b553ce3b0707b23bb4fa0089b8f556e6799f4df624bf300fff026055ffa075a": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "operation: _",
+          "ordinal": 2,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "Add",
+                  "Subtract",
+                  "Multiply",
+                  "Divide"
+                ]
+              },
+              "name": "billable_operation"
+            }
+          }
+        },
+        {
+          "name": "number",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "version",
+          "ordinal": 4,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "Add",
+                  "Subtract",
+                  "Multiply",
+                  "Divide"
+                ]
+              },
+              "name": "billable_operation"
+            }
+          },
+          "Int4",
+          "Int4",
+          "Int4"
+        ]
+      }
+    },
+    "query": "UPDATE controller.billable_rule SET name = $1, operation = $2, number = $3, version = $4 WHERE id = $5 RETURNING id, name, operation as \"operation: _\", number, version"
+  },
+  "368b419f38a78b29e10aae0ea8c11f1e2045881af8d42585a60989a8509db36e": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "operation: _",
+          "ordinal": 2,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "Add",
+                  "Subtract",
+                  "Multiply",
+                  "Divide"
+                ]
+              },
+              "name": "billable_operation"
+            }
+          }
+        },
+        {
+          "name": "number",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "version",
+          "ordinal": 4,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT id, name, operation as \"operation: _\", number, version FROM controller.billable_rule WHERE id = $1"
+  },
+  "698d340aa4814cf67848c04f092b69b9312a425b7ffc241a98b45ffdea44e5ff": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "operation: _",
+          "ordinal": 2,
+          "type_info": {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "Add",
+                  "Subtract",
+                  "Multiply",
+                  "Divide"
+                ]
+              },
+              "name": "billable_operation"
+            }
+          }
+        },
+        {
+          "name": "number",
+          "ordinal": 3,
+          "type_info": "Int4"
+        },
+        {
+          "name": "version",
+          "ordinal": 4,
+          "type_info": "Int4"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          {
+            "Custom": {
+              "kind": {
+                "Enum": [
+                  "Add",
+                  "Subtract",
+                  "Multiply",
+                  "Divide"
+                ]
+              },
+              "name": "billable_operation"
+            }
+          },
+          "Int4",
+          "Int4"
+        ]
+      }
+    },
+    "query": "INSERT INTO controller.billable_rule (name, operation, number, version) VALUES ($1, $2, $3, $4) RETURNING id, name, operation as \"operation: _\", number, version"
+  },
+  "c7c9ca384d73b26dad29238aa56deda4aa5918b2ee44721d3d8597dd85f6bc8c": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "DELETE FROM controller.billable_rule WHERE id = $1"
   }
 }
