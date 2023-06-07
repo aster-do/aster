@@ -12,7 +12,25 @@
     },
     "query": "UPDATE billables.BILLABLE SET TREATED = TRUE WHERE ID = ANY($1)"
   },
-  "7b137abb3909513458f57381abba62568f38037bbec314d2ca8a03e124a49211": {
+  "7ebcf779dcd030a7597cf1fcc4bacb323a62dceb87d1cb2a1c378c9cf7127786": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Timestamptz",
+          "Float8",
+          "Float8",
+          "Float8",
+          "Float8",
+          "Float8"
+        ]
+      }
+    },
+    "query": "INSERT INTO billables.billable_aggregate(name, \"timestamp\", min, max, avg, count, sum) VALUES ($1, $2, $3, $4, $5, $6, $7)"
+  },
+  "bfc3a69ad043e1e6f775098935576edb90f49fa5e10c2ca9a4569a25f46ae011": {
     "describe": {
       "columns": [
         {
@@ -61,10 +79,30 @@
         false
       ],
       "parameters": {
-        "Left": []
+        "Left": [
+          "TimestamptzArray"
+        ]
       }
     },
-    "query": "SELECT * FROM billables.BILLABLE_AGGREGATE"
+    "query": "SELECT * FROM billables.BILLABLE_AGGREGATE WHERE TIMESTAMP = ANY($1)"
+  },
+  "d09668638adffd9e363ce3a56797e92aa00e8beaa940a92f64b2c19b1c6dfb48": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Float8",
+          "Float8",
+          "Float8",
+          "Float8",
+          "Float8",
+          "Timestamptz",
+          "Text"
+        ]
+      }
+    },
+    "query": "UPDATE billables.BILLABLE_AGGREGATE SET MIN = $1, MAX = $2, AVG = $3, COUNT = $4, SUM = $5  WHERE \"timestamp\" = $6 AND NAME = $7"
   },
   "e0e45a7e10e85479a6427782fc0d828b4b4a730259621f0bccec5b886549547b": {
     "describe": {
