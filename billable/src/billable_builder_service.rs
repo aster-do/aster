@@ -137,6 +137,19 @@ impl BillableBuilderService {
     }
 
     async fn fetch_billable_rules(&self) -> Result<(), anyhow::Error> {
-        todo!()
+        let controller_address =
+            std::env::var("CONTROLLER_ADDRESS").unwrap_or("http://localhost:3032".to_string());
+        let get_rules_address = format!("{}/rules", controller_address);
+
+        let rules = reqwest::get(get_rules_address)
+            .await?
+            .json::<Vec<BillableRule>>()
+            .await?;
+
+        self.rules.write().await.extend(rules);
+
+        log::info!("Billable rules fetched");
+
+        Ok(())
     }
 }
