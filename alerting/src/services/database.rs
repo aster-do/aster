@@ -20,7 +20,10 @@ impl DatabaseService {
     pub async fn new() -> Self {
         let pool = match PgPoolOptions::new()
             .max_connections(100)
-            .connect("postgres://postgres:postgres@localhost:5432/postgres")
+            .connect(
+                &std::env::var("DATABASE_URL")
+                    .unwrap_or("postgres://postgres:postgres@localhost:5432/postgres".to_string()),
+            )
             .await
         {
             Ok(_pool) => Some(_pool),
