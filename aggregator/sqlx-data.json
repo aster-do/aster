@@ -1,6 +1,6 @@
 {
   "db": "PostgreSQL",
-  "24e42446ec3abefae36eb7f6115fd03ea41b50442e65b63d869b15b459809f23": {
+  "4a074b333453e9f329dd72a68b6ef861f801c288f36e464f5438dc2ed1cd3c64": {
     "describe": {
       "columns": [],
       "nullable": [],
@@ -10,9 +10,9 @@
         ]
       }
     },
-    "query": "UPDATE billables.BILLABLE SET TREATED = TRUE WHERE ID = ANY($1)"
+    "query": "UPDATE BILLABLE SET TREATED = TRUE WHERE ID = ANY($1)"
   },
-  "e0e45a7e10e85479a6427782fc0d828b4b4a730259621f0bccec5b886549547b": {
+  "f3cfc583c7923729deb5aa23d637ee32bb65ee2102bb5eb71e1cde413efea23c": {
     "describe": {
       "columns": [
         {
@@ -58,6 +58,6 @@
         "Left": []
       }
     },
-    "query": "SELECT * FROM billables.BILLABLE WHERE TREATED = false"
+    "query": "SELECT * FROM BILLABLE WHERE TREATED = false"
   }
 }
