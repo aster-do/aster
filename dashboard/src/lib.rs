@@ -42,13 +42,13 @@ impl AsterService for DashboardServer {
 
         let router = get_router(self.pool.take().unwrap());
 
-        let listen = format!("0.0.0.0:{}", SERVICE_PORT);
+        let addr = format!("0.0.0.0:{}", SERVICE_PORT);
 
-        debug!("DashboardServer running on {}", listen);
+        debug!("DashboardServer running on {}", addr);
 
         // run the server
 
-        Server::bind(&listen.parse().unwrap())
+        Server::bind(&addr.parse().unwrap())
             .serve(router.into_make_service())
             .await?;
 
