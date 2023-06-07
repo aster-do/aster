@@ -1,9 +1,8 @@
-pub mod input;
-pub mod output;
+pub mod structures;
 
 use async_graphql::{EmptySubscription, Schema, ID};
 use chrono::Utc;
-use output::{Billing, BillingItem};
+use structures::{Billable, Billing};
 
 pub type BillingSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
@@ -21,30 +20,31 @@ impl QueryRoot {
                     .unwrap()
                     .with_timezone(&Utc),
                 items: vec![
-                    BillingItem {
+                    Billable {
                         id: ID::from("1".to_owned()),
                         name: "cpu".to_owned(),
                         value: 1.0,
-                        price: 1.0,
+                        price: 10,
                         timestamp: chrono::DateTime::parse_from_rfc3339(
                             "2023-06-06T13:23:04+00:00",
                         )
                         .unwrap()
                         .with_timezone(&Utc),
+                        treated: false,
                     },
-                    BillingItem {
+                    Billable {
                         id: ID::from("2".to_owned()),
                         name: "storage".to_owned(),
                         value: 3.4,
-                        price: 2.0,
+                        price: 20,
                         timestamp: chrono::DateTime::parse_from_rfc3339(
                             "2023-06-06T13:23:04+00:00",
                         )
                         .unwrap()
                         .with_timezone(&Utc),
+                        treated: false,
                     },
                 ],
-                total_price: 1.0 + 3.4 * 2.0,
             },
             Billing {
                 id: ID::from("2".to_owned()),
@@ -52,30 +52,31 @@ impl QueryRoot {
                     .unwrap()
                     .with_timezone(&Utc),
                 items: vec![
-                    BillingItem {
+                    Billable {
                         id: ID::from("1".to_owned()),
                         name: "cpu".to_owned(),
                         value: 1.0,
-                        price: 1.0,
+                        price: 10,
                         timestamp: chrono::DateTime::parse_from_rfc3339(
                             "2023-06-06T13:23:04+00:00",
                         )
                         .unwrap()
                         .with_timezone(&Utc),
+                        treated: false,
                     },
-                    BillingItem {
+                    Billable {
                         id: ID::from("2".to_owned()),
                         name: "storage".to_owned(),
                         value: 3.9,
-                        price: 2.0,
+                        price: 20,
                         timestamp: chrono::DateTime::parse_from_rfc3339(
                             "2023-06-06T13:23:04+00:00",
                         )
                         .unwrap()
                         .with_timezone(&Utc),
+                        treated: false,
                     },
                 ],
-                total_price: 1.0 + 3.9 * 2.0,
             },
         ];
 
@@ -99,41 +100,42 @@ impl MutationRoot {
         let id = ID::from("1".to_string());
         let generated_at = Utc::now();
         let items = vec![
-            BillingItem {
+            Billable {
                 id: "3".into(),
                 name: "memory".into(),
-                price: 10.99,
+                price: 199,
                 timestamp: chrono::DateTime::parse_from_rfc3339("2023-06-06T13:23:04+00:00")
                     .unwrap()
                     .with_timezone(&Utc),
+                treated: false,
                 value: 1.0,
             },
-            BillingItem {
+            Billable {
                 id: "4".into(),
                 name: "cpu".into(),
-                price: 1.99,
+                price: 199,
                 timestamp: chrono::DateTime::parse_from_rfc3339("2023-06-06T13:23:04+00:00")
                     .unwrap()
                     .with_timezone(&Utc),
+                treated: false,
                 value: 3.5,
             },
-            BillingItem {
+            Billable {
                 id: "5".into(),
                 name: "cpu".into(),
-                price: 2.30,
+                price: 230,
                 timestamp: chrono::DateTime::parse_from_rfc3339("2023-06-06T13:23:04+00:00")
                     .unwrap()
                     .with_timezone(&Utc),
+                treated: false,
                 value: 4.0,
             },
         ];
-        let total_price = items.iter().map(|item| item.price * item.value).sum();
 
         Billing {
             id,
             generated_at,
             items,
-            total_price,
         }
     }
 }
