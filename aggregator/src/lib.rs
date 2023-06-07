@@ -4,9 +4,8 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 
 use anyhow::anyhow;
 use bills::AggregatesToBeWritten;
-use futures_util::{FutureExt, TryFutureExt};
+use futures_util::TryFutureExt;
 use sqlx::types::chrono::{DateTime, Utc};
-use sqlx::{Postgres, Transaction};
 use std::str::FromStr;
 
 use async_trait::async_trait;
@@ -182,7 +181,7 @@ impl BillableAggregatorService {
             Err(e) => {
                 error!("Error updating billables: {}", e);
                 transaction.rollback().await?;
-                return Err(e.into());
+                return Err(e);
             }
         };
 
