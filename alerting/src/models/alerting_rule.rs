@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use chrono::{DateTime, Utc};
 
 use super::input::alerting_rule::{AlertingRuleInput, RuleTriggerInput, RuleTypeInput};
@@ -79,11 +81,13 @@ impl RuleType {
             _ => panic!("Invalid rule type"),
         }
     }
+}
 
-    pub fn to_string(&self) -> String {
+impl Display for RuleType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            RuleType::ValueBased => "value_based".to_string(),
-            RuleType::PriceBased => "price_based".to_string(),
+            RuleType::ValueBased => write!(f, "value_based"),
+            RuleType::PriceBased => write!(f, "price_based"),
         }
     }
 }
@@ -98,13 +102,15 @@ impl RuleTrigger {
             _ => panic!("Invalid rule trigger"),
         }
     }
+}
 
-    pub fn to_string(&self) -> String {
+impl Display for RuleTrigger {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            RuleTrigger::GreaterThan => "greater_than".to_string(),
-            RuleTrigger::LessThan => "less_than".to_string(),
-            RuleTrigger::Equal => "equal".to_string(),
-            RuleTrigger::NotEqual => "not_equal".to_string(),
+            RuleTrigger::GreaterThan => write!(f, "greater_than"),
+            RuleTrigger::LessThan => write!(f, "less_than"),
+            RuleTrigger::Equal => write!(f, "equal"),
+            RuleTrigger::NotEqual => write!(f, "not_equal"),
         }
     }
 }

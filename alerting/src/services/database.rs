@@ -47,11 +47,11 @@ impl DatabaseService {
             id: rule.id.clone(),
             name: rule.name.clone().unwrap_or_default(),
             rule_type: rule.rule_type.unwrap_or_default().to_string(),
-            metric_name: rule.metric_name.unwrap_or_default().clone(),
+            metric_name: rule.metric_name.unwrap_or_default(),
             threshold: BigDecimal::from_str(&rule.threshold.unwrap_or_default().to_string())
                 .unwrap(),
             trigger: rule.trigger.unwrap_or_default().to_string(),
-            duration: rule.duration.unwrap_or_default() as i32,
+            duration: rule.grace_period.unwrap_or_default() as i32,
             notification_channel_ids: Some(format!("{:?}", rule.notification_channel_ids)),
         };
 
@@ -72,7 +72,7 @@ impl DatabaseService {
         Ok(clone)
     }
 
-    pub async fn delete_rule(&self, _rule_id: String) -> anyhow::Result<()> {
+    pub async fn delete_rule(&self, rule_id: String) -> anyhow::Result<()> {
         let mut conn: sqlx::pool::PoolConnection<sqlx::Postgres> = self
             .pool
             .as_ref()
@@ -81,7 +81,7 @@ impl DatabaseService {
             .await
             .map_err(|e| anyhow::anyhow!("Alerting : Failed to acquire connection: {}", e))?;
 
-        sqlx::query!("DELETE FROM alertingrule WHERE id = $1", _rule_id)
+        sqlx::query!("DELETE FROM alertingrule WHERE id = $1", rule_id)
             .execute(&mut conn)
             .await
             .map_err(|e| anyhow::anyhow!("Alerting : Failed to delete rule: {}", e))?;
@@ -89,13 +89,13 @@ impl DatabaseService {
         Ok(())
     }
 
-    pub async fn _update_rule(
+    pub async fn update_rule(
         &self,
-        _rule_id: String,
+        rule_id: String,
         rule: AlertingRule,
     ) -> anyhow::Result<Option<AlertingRule>> {
         // check if rule exists
-        let rule_to_update = &self.get_rule(_rule_id).await?;
+        let rule_to_update = &self.get_rule(rule_id).await?;
 
         if rule_to_update.is_none() {
             return Ok(None);
@@ -105,13 +105,13 @@ impl DatabaseService {
 
         let rule_to_update = AlertingRuleInsert {
             id: rule.id.clone(),
-            name: rule.name.unwrap_or_default().clone(),
+            name: rule.name.unwrap_or_default(),
             rule_type: rule.rule_type.unwrap_or_default().to_string(),
-            metric_name: rule.metric_name.unwrap_or_default().clone(),
+            metric_name: rule.metric_name.unwrap_or_default(),
             threshold: BigDecimal::from_str(&rule.threshold.unwrap_or_default().to_string())
                 .unwrap(),
             trigger: rule.trigger.unwrap_or_default().to_string(),
-            duration: rule.duration.unwrap_or_default() as i32,
+            duration: rule.grace_period.unwrap_or_default() as i32,
             notification_channel_ids: Some(format!("{:?}", rule.notification_channel_ids)),
         };
 
@@ -140,11 +140,11 @@ impl DatabaseService {
         Ok(Some(clone))
     }
 
-    pub async fn get_rule(&self, _rule_id: String) -> anyhow::Result<Option<AlertingRule>> {
+    pub async fn get_rule(&self, rule_id: String) -> anyhow::Result<Option<AlertingRule>> {
         let rule: Option<AlertingRuleFetch> = sqlx::query_as!(
             AlertingRuleFetch,
             "SELECT * FROM alertingrule WHERE id = $1",
-            _rule_id
+            rule_id
         )
         .fetch_optional(self.pool.as_ref().unwrap())
         .await
@@ -157,7 +157,7 @@ impl DatabaseService {
             metric_name: Some(rule.metric_name),
             threshold: Some(rule.threshold.to_string().parse().unwrap()),
             trigger: Some(RuleTrigger::from_string(&rule.trigger)),
-            duration: Some(rule.duration as u64),
+            grace_period: Some(rule.duration as u64),
             notification_channel_ids: rule
                 .notification_channel_ids
                 .map(|ids| {
@@ -191,7 +191,7 @@ impl DatabaseService {
                 metric_name: Some(rule.metric_name),
                 threshold: Some(rule.threshold.to_string().parse().unwrap()),
                 trigger: Some(RuleTrigger::from_string(&rule.trigger)),
-                duration: Some(rule.duration as u64),
+                grace_period: Some(rule.duration as u64),
                 notification_channel_ids: rule
                     .notification_channel_ids
                     .map(|ids| {
