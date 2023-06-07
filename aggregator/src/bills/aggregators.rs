@@ -17,7 +17,7 @@ fn aggregate_by_hour_and_metric(
     aggregations: Vec<BillableAggregate>,
 ) -> AggregatesToBeWritten {
     let mut inserts: Vec<BillableAggregate> = Vec::new();
-    let mut updates: Vec<BillableAggregate> = Vec::new();
+    let mut updates: Vec<BillableAggregate> = aggregations.clone();
 
     let mut tmp_inserts: Vec<BillableAggregate> = Vec::new();
 
@@ -33,19 +33,19 @@ fn aggregate_by_hour_and_metric(
 
         info!("Aggregating billable {} at {} with values: min: {}, max: {}, avg: {}, count: {}, sum: {}", bill.name, timestamp, bill.value, bill.value, bill.value, 1.0, bill.value);
 
-        match aggregations.iter().find(
+        match aggregations.iter().position(
             |agg| agg.name == bill.name && agg.timestamp == timestamp,
         ) {
-            Some(existing_aggregate) => {
-                updates.push(BillableAggregate {
-                    name: existing_aggregate.name.clone(),
+            Some(existing_aggregate_index) => {
+                updates[existing_aggregate_index] = BillableAggregate {
+                    name:  updates[existing_aggregate_index].name.clone(),
                     timestamp,
-                    min: f64::min(bill.value, existing_aggregate.min),
-                    max: f64::max(bill.value, existing_aggregate.max),
-                    avg: (bill.value + existing_aggregate.avg) / (existing_aggregate.count + 1.0),
-                    count: existing_aggregate.count + 1.0,
-                    sum: existing_aggregate.sum + bill.value, // sum of values
-                });
+                    min: f64::min(bill.value,  updates[existing_aggregate_index].min),
+                    max: f64::max(bill.value,  updates[existing_aggregate_index].max),
+                    avg: (bill.value + updates[existing_aggregate_index].sum) / ( updates[existing_aggregate_index].count + 1.0),
+                    count: updates[existing_aggregate_index].count + 1.0,
+                    sum: updates[existing_aggregate_index].sum + bill.value, // sum of values
+                };
             }
             None => {
                 tmp_inserts.push(BillableAggregate {
@@ -99,7 +99,7 @@ mod tests {
     use pretty_assertions::assert_eq;
 
     #[test]
-    fn test_aggregation() {
+    fn test_aggregation_without_prior_aggregates() {
         let billings = vec![
             BillableSQL {
                 id: 0,
@@ -143,8 +143,6 @@ mod tests {
 
         let aggregated = aggregate(billings, vec![]);
 
-        println!("{:?}", aggregated._inserts);
-
         assert!(aggregated._updates.is_empty());
         assert_eq!(aggregated._inserts.len(), 3);
 
@@ -163,6 +161,68 @@ mod tests {
         assert_eq!(
             aggregated._inserts[0].timestamp,
             chrono::Utc.with_ymd_and_hms(2023, 3, 2, 10, 0, 0).unwrap()
+        );
+    }
+
+    #[test]
+    fn test_aggregation_with_prior_aggregates() {
+        let billings = vec![BillableSQL {
+            id: 0,
+            name: "test".to_string(),
+            price: 10,
+            timestamp: chrono::Utc.with_ymd_and_hms(2023, 3, 2, 10, 10, 9).unwrap(),
+            value: 1.0,
+            treated: false,
+        }];
+
+        let previous_aggregates = vec![
+            BillableAggregate {
+                name: "test".to_string(),
+                timestamp: chrono::Utc.with_ymd_and_hms(2023, 3, 2, 10, 0, 0).unwrap(),
+                min: 2.0,
+                max: 3.0,
+                avg: 2.5,
+                count: 2.0,
+                sum: 5.0,
+            },
+            BillableAggregate {
+                name: "test2".to_string(),
+                timestamp: chrono::Utc.with_ymd_and_hms(2023, 3, 2, 10, 0, 0).unwrap(),
+                min: 1.0,
+                max: 3.0,
+                avg: 2.0,
+                count: 1.0,
+                sum: 4.0,
+            },
+        ];
+
+        let aggregated = aggregate(billings, previous_aggregates);
+
+        assert!(aggregated._inserts.is_empty());
+        assert_eq!(aggregated._updates.len(), 2);
+
+        assert_eq!(
+            aggregated._updates,
+            vec![
+                BillableAggregate {
+                    name: "test".to_string(),
+                    timestamp: chrono::Utc.with_ymd_and_hms(2023, 3, 2, 10, 0, 0).unwrap(),
+                    min: 1.0,
+                    max: 3.0,
+                    avg: 2.0,
+                    count: 3.0,
+                    sum: 6.0
+                },
+                BillableAggregate {
+                    name: "test2".to_string(),
+                    timestamp: chrono::Utc.with_ymd_and_hms(2023, 3, 2, 10, 0, 0).unwrap(),
+                    min: 1.0,
+                    max: 3.0,
+                    avg: 2.0,
+                    count: 1.0,
+                    sum: 4.0
+                }
+            ]
         );
     }
 }
