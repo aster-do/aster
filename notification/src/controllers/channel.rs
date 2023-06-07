@@ -1,7 +1,5 @@
 use std::net::SocketAddr;
 
-use anyhow::{Ok, Result};
-
 use async_graphql::{http::GraphiQLSource, EmptyMutation, EmptySubscription, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{
@@ -23,7 +21,10 @@ pub struct ChannelController {
 }
 
 impl ChannelController {
-    pub fn new(http_address: SocketAddr, readiness_endpoint: String) -> Result<Self> {
+    pub fn new(
+        http_address: SocketAddr,
+        readiness_endpoint: String,
+    ) -> Result<Self, anyhow::Error> {
         Ok(Self {
             //Config & stateful info
             _channel_service: ChannelService::new()?,
@@ -32,7 +33,7 @@ impl ChannelController {
         })
     }
 
-    pub async fn start(&self) -> Result<()> {
+    pub async fn start(&self) -> Result<(), anyhow::Error> {
         let schema = Schema::new(QueryRoot, EmptyMutation, EmptySubscription);
 
         let app = Router::new()

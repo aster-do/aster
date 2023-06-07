@@ -1,6 +1,6 @@
 use std::net::{IpAddr, SocketAddr};
 
-use anyhow::{anyhow, Ok, Result};
+use anyhow::anyhow;
 use async_trait::async_trait;
 use common::AsterService;
 use controllers::channel::ChannelController;
@@ -25,7 +25,7 @@ impl AsterService for NotificationInterface {
     async fn init(
         &mut self,
         _: &mut common::messaging::tokio_broadcast::CrossbeamMessagingFactory,
-    ) -> Result<()> {
+    ) -> Result<(), anyhow::Error> {
         debug!("Initializing channel controller");
         self.channel_controller = Some(controllers::channel::ChannelController::new(
             SocketAddr::new(ADDRESS, PORT),
@@ -35,7 +35,7 @@ impl AsterService for NotificationInterface {
         Ok(())
     }
 
-    async fn run(&mut self) -> Result<()> {
+    async fn run(&mut self) -> Result<(), anyhow::Error> {
         debug!("Starting channel controller");
         self.channel_controller
             .as_mut()

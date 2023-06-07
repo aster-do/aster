@@ -65,8 +65,15 @@ impl BillableService {
         {
             if self.check_trigger(&billable, &rule.trigger, rule.threshold, &rule.rule_type)? {
                 info!("Rule triggered: {:?}", rule);
+
+                let alert_message = format!(
+                    "Rule triggered: {:?}, billable: {:?}",
+                    rule,
+                    billable.clone()
+                );
+
                 self.notification_service
-                    ._handle_notification(Notification::new("test".to_string()))?;
+                    .handle_notification(Notification::new("test".to_string(), alert_message))?;
             }
         }
 
