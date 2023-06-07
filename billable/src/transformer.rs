@@ -1,9 +1,12 @@
+use std::sync::Arc;
+
 use common::models::{
     billable_rules::billable_rule::{BillableOperation, BillableRule},
     Billable, Metric,
 };
+use tokio::sync::RwLock;
 
-pub fn transform(metric: &Metric, rules: Vec<BillableRule>) -> Billable {
+pub async fn transform(metric: &Metric, rules: Arc<RwLock<Vec<BillableRule>>>) -> Billable {
     let mut bill = Billable {
         price: 0,
         name: metric.name.clone(),
@@ -11,7 +14,7 @@ pub fn transform(metric: &Metric, rules: Vec<BillableRule>) -> Billable {
         timestamp: metric.timestamp,
     };
 
-    for rule in rules {
+    for rule in rules.read().await.iter() {
         if rule.name == metric.name {
             bill.price = match rule.operation {
                 BillableOperation::Add => (metric.value + rule.number as f64) as i64,
@@ -29,8 +32,8 @@ pub fn transform(metric: &Metric, rules: Vec<BillableRule>) -> Billable {
 mod tests {
     use super::*;
 
-    #[test]
-    fn cpu_conversion() {
+    #[tokio::test]
+    async fn cpu_conversion() {
         let metric = Metric {
             corelation_id: None,
             name: "cpu".to_string(),
@@ -40,15 +43,15 @@ mod tests {
 
         let rules = get_rules();
 
-        let billable = transform(&metric, rules);
+        let billable = transform(&metric, rules).await;
 
         assert_eq!(billable.name, "cpu");
         assert_eq!(billable.value, 1.0);
         assert_eq!(billable.price, 200);
     }
 
-    #[test]
-    fn memory_conversion() {
+    #[tokio::test]
+    async fn memory_conversion() {
         let metric = Metric {
             corelation_id: None,
             name: "memory".to_string(),
@@ -58,15 +61,15 @@ mod tests {
 
         let rules = get_rules();
 
-        let billable = transform(&metric, rules);
+        let billable = transform(&metric, rules).await;
 
         assert_eq!(billable.name, "memory");
         assert_eq!(billable.value, 1.0);
         assert_eq!(billable.price, 0);
     }
 
-    fn get_rules() -> Vec<BillableRule> {
-        vec![
+    fn get_rules() -> Arc<RwLock<Vec<BillableRule>>> {
+        Arc::new(RwLock::new(vec![
             BillableRule {
                 id: Some(1),
                 name: "cpu".to_string(),
@@ -81,6 +84,6 @@ mod tests {
                 number: 0,
                 version: Some(1),
             },
-        ]
+        ]))
     }
 }
