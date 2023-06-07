@@ -7,38 +7,39 @@ pub struct RuleService {
 }
 
 impl RuleService {
-    pub async fn new() -> Self {
-        Self {
+    pub async fn new() -> Result<Self, anyhow::Error> {
+        Ok(Self {
             database_service: Some(DatabaseService::new().await),
+        })
+    }
+
+    pub async fn mutate_rule(&self, rule: AlertingRule) -> anyhow::Result<AlertingRule> {
+        let database_service = self
+            .database_service
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("Alerting : Service not found"))?;
+
+        if let Some(_rule) = database_service.get_rule(rule.id.clone()).await? {
+            database_service
+                .update_rule(rule.clone().id, rule.clone())
+                .await?
+                .ok_or_else(|| {
+                    anyhow::anyhow!(
+                        "Alerting : Failed to update rule with id {}",
+                        rule.clone().id
+                    )
+                })
+        } else {
+            database_service.create_rule(rule).await
         }
     }
 
-    pub async fn _create_rule(&self, rule: AlertingRule) -> anyhow::Result<AlertingRule> {
+    pub async fn delete_rule(&self, rule_id: String) -> anyhow::Result<()> {
         let database_service = self
             .database_service
             .as_ref()
             .ok_or_else(|| anyhow::anyhow!("Alerting : Service not found"))?;
-        database_service.create_rule(rule).await
-    }
-
-    pub async fn _delete_rule(&self, _rule_id: String) -> anyhow::Result<()> {
-        let database_service = self
-            .database_service
-            .as_ref()
-            .ok_or_else(|| anyhow::anyhow!("Alerting : Service not found"))?;
-        database_service.delete_rule(_rule_id).await
-    }
-
-    pub async fn _update_rule(
-        &self,
-        rule_id: String,
-        rule: AlertingRule,
-    ) -> anyhow::Result<Option<AlertingRule>> {
-        let database_service = self
-            .database_service
-            .as_ref()
-            .ok_or_else(|| anyhow::anyhow!("Alerting : Service not found"))?;
-        database_service._update_rule(rule_id, rule).await
+        database_service.delete_rule(rule_id).await
     }
 
     pub async fn get_rules(&self) -> anyhow::Result<Vec<AlertingRule>> {
@@ -49,11 +50,11 @@ impl RuleService {
         database_service.get_rules().await
     }
 
-    pub async fn _get_rule(&self, _rule_id: String) -> anyhow::Result<Option<AlertingRule>> {
+    pub async fn get_rule(&self, rule_id: String) -> anyhow::Result<Option<AlertingRule>> {
         let database_service = self
             .database_service
             .as_ref()
             .ok_or_else(|| anyhow::anyhow!("Alerting : Service not found"))?;
-        database_service.get_rule(_rule_id).await
+        database_service.get_rule(rule_id).await
     }
 }
