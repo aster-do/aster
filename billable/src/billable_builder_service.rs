@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use std::sync::Arc;
 
@@ -9,7 +10,7 @@ use common::messaging::tokio_broadcast::{
     BillableRuleReceiver, BillableSender, CrossbeamMessagingFactory, MetricReceiver,
 };
 use common::messaging::{AsyncReceiver, AsyncSender, MessagingFactory};
-use common::models::billable_rules::billable_rule::BillableRule;
+use common::models::billable_rules::billable_rule::{BillableRule, BillableRuleId};
 use common::monitoring::readiness_handler;
 use common::AsterService;
 use tokio::sync::RwLock;
@@ -20,7 +21,7 @@ const READINESS_SERVER_ENDPOINT: &str = "/health";
 
 #[derive(Default)]
 pub struct BillableBuilderService {
-    pub rules: Arc<RwLock<Vec<BillableRule>>>,
+    pub rules: Arc<RwLock<HashMap<BillableRuleId, BillableRule>>>,
     pub metric_receiver: Option<MetricReceiver>,
     pub billable_sender: Option<BillableSender>,
     pub billable_rule_receiver: Option<BillableRuleReceiver>,
@@ -37,7 +38,7 @@ impl AsterService for BillableBuilderService {
         self.billable_rule_receiver = Some(messaging.create_billable_rule_receiver().await);
 
         // init billable rules state
-        self.rules = Arc::new(RwLock::new(vec![]));
+        self.rules = Arc::new(RwLock::new(HashMap::new()));
 
         log::info!("BillableBuilderService initialized");
         Ok(())
@@ -130,9 +131,7 @@ impl BillableBuilderService {
 
             log::debug!("Received billable rule: {:?}", billable_rule);
 
-            // check if rule already exists
-            // todo: deduplication
-            self.rules.write().await.push(billable_rule);
+            self.add_billing_rule(billable_rule).await;
         }
     }
 
@@ -146,10 +145,28 @@ impl BillableBuilderService {
             .json::<Vec<BillableRule>>()
             .await?;
 
-        self.rules.write().await.extend(rules);
+        for rule in rules {
+            self.add_billing_rule(rule).await;
+        }
 
         log::info!("Billable rules fetched");
 
         Ok(())
+    }
+
+    async fn add_billing_rule(&self, rule: BillableRule) {
+        let mut rules = self.rules.write().await;
+
+        // check if rule already exists
+        rules
+            .get_mut(&rule.id)
+            .map(|r| {
+                if r.version < rule.version {
+                    *r = rule.clone();
+                }
+            })
+            .unwrap_or_else(|| {
+                rules.insert(rule.id, rule);
+            });
     }
 }
