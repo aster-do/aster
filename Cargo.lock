@@ -78,6 +78,7 @@ dependencies = [
  "common",
  "log",
  "notification",
+ "serde",
  "tokio",
 ]
 

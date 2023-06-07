@@ -29,15 +29,17 @@ impl AsterService for AlertingInterface {
         messaging: &mut common::messaging::tokio_broadcast::CrossbeamMessagingFactory,
     ) -> Result<()> {
         debug!("Initializing billable controller");
-        self.billable_controller = Some(BillableController::new(
-            messaging.create_billable_receiver().await,
-        )?);
+        self.billable_controller =
+            Some(BillableController::new(messaging.create_billable_receiver().await).await?);
 
         debug!("Initializing rule controller");
-        self.rule_controller = Some(RuleController::new(
-            SocketAddr::new(ADDRESS, PORT),
-            READINESS_SERVER_ENDPOINT.to_string(),
-        )?);
+        self.rule_controller = Some(
+            RuleController::new(
+                SocketAddr::new(ADDRESS, PORT),
+                READINESS_SERVER_ENDPOINT.to_string(),
+            )
+            .await?,
+        );
 
         Ok(())
     }

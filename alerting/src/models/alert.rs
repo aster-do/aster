@@ -1,15 +1,18 @@
 use chrono::{DateTime, Utc};
 
 #[derive(Debug)]
-pub struct _Alert {
-    _alerting_rule_id: String,
-    _value: f64,
-    _status: _AlertStatus,
-    _notification_id: String,
+pub struct Alert {
+    pub id: String,
+    pub alerting_rule_id: Option<String>,
+    pub value: Option<f64>,
+    pub status: Option<AlertStatus>,
+    pub notification_id: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug)]
-pub enum _AlertStatus {
+pub enum AlertStatus {
     _Triggered(DateTime<Utc>), // timestamp
     _Resolved(DateTime<Utc>),  // timestamp
 }

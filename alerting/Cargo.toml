@@ -16,4 +16,4 @@ async-graphql = { workspace = true , features = ["dynamic-schema"]}
 async-graphql-axum = { workspace = true }
 axum = { workspace = true }
 tokio = { workspace = true, features = ["full","tracing"] }
-
+serde = { workspace = true }

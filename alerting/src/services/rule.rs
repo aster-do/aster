@@ -1,6 +1,6 @@
 use anyhow::{Ok, Result};
 
-use crate::models::alerting_rule::_AlertingRule;
+use crate::models::alerting_rule::AlertingRule;
 
 #[derive(Debug)]
 pub struct RuleService {
@@ -8,37 +8,30 @@ pub struct RuleService {
 }
 
 impl RuleService {
-    pub fn new() -> Result<Self> {
+    pub async fn new() -> Result<Self> {
         Ok(Self {
             //Config & stateful info
         })
     }
 
-    pub fn _create_rule(&self, rule: _AlertingRule) -> Result<_AlertingRule> {
+    pub async fn mutate_rule(&self, rule: AlertingRule) -> Result<AlertingRule> {
         //TODO: Implement create rule logic
+        // If rule exists, update it
+        // If rule does not exist, create it
         Ok(rule)
     }
 
-    pub fn _delete_rule(&self, _rule_id: String) -> Result<()> {
+    pub async fn delete_rule(&self, _rule_id: String) -> Result<()> {
         //TODO: Implement delete rule logic
         Ok(())
     }
 
-    pub fn _update_rule(
-        &self,
-        _rule_id: String,
-        _rule: _AlertingRule,
-    ) -> Result<Option<_AlertingRule>> {
-        //TODO: Implement update rule logic
-        Ok(None)
-    }
-
-    pub fn _get_rules(&self) -> Result<Vec<_AlertingRule>> {
+    pub async fn get_rules(&self) -> Result<Vec<AlertingRule>> {
         //TODO: Implement get rules logic
         Ok(vec![])
     }
 
-    pub fn _get_rule(&self, _rule_id: String) -> Result<Option<_AlertingRule>> {
+    pub async fn get_rule(&self, _rule_id: String) -> Result<Option<AlertingRule>> {
         //TODO: Implement get rule logic
         Ok(None)
     }
