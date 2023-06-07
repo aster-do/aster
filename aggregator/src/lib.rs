@@ -37,8 +37,7 @@ impl AsterService for BillableAggregatorService {
         self.connection = Some(
             PgPool::connect_with(
                 PgConnectOptions::from_str(&url)
-                    .map_err(|e| anyhow!("Failed to parse database url").context(e))?
-                    .options([("search_path", "billables")]),
+                    .map_err(|e| anyhow!("Failed to parse database url").context(e))?,
             )
             .await
             .map_err(|e| anyhow!("Failed to connect to database").context(e))?,
