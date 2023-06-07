@@ -8,7 +8,7 @@ use std::str::FromStr;
 use async_trait::async_trait;
 
 use axum::{routing::get, Router, Server};
-use common::models::billable::BillableSQL;
+use common::models::billable::{BillableAggregate, BillableSQL};
 
 use common::monitoring::readiness_handler;
 use common::{messaging::tokio_broadcast::CrossbeamMessagingFactory, services::AsterService};
@@ -20,8 +20,8 @@ const MAX_FAIL_COUNT: u32 = 5;
 const READINESS_SERVER_ADDRESS: &SocketAddr =
     &SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 3037);
 const READINESS_SERVER_ENDPOINT: &str = "/health";
-use bills::tables::run_migrations;
 use crate::bills::aggregators::aggregate;
+use bills::tables::run_migrations;
 
 #[derive(Default)]
 pub struct BillableAggregatorService {
@@ -77,8 +77,21 @@ impl BillableAggregatorService {
         Ok(results)
     }
 
+    async fn get_all_aggregates(&self) -> Result<Vec<BillableAggregate>, anyhow::Error> {
+        let results = query_as!(
+            BillableAggregate,
+            "SELECT * FROM billables.BILLABLE_AGGREGATE"
+        )
+        .fetch_all(self.connection.as_ref().unwrap())
+        .await
+        .map_err(Box::new)?;
+
+        Ok(results)
+    }
+
     pub async fn run_aggregation_pipeline(&mut self) -> Result<(), anyhow::Error> {
         let billings = self.get_raw_billings().await?;
+        let aggregates = self.get_all_aggregates().await?;
 
         if billings.is_empty() {
             info!("No billings to aggregate");
@@ -90,7 +103,7 @@ impl BillableAggregatorService {
         let ids = billings.iter().map(|b| b.id).collect::<Vec<i32>>();
 
         // TODO toggle aggregation and insert what has been aggregated
-        // aggregate(billings);
+        let _aggregates = aggregate(billings, aggregates);
 
         // Because we are never too careful we start a transaction
         let mut transaction = self.connection.as_ref().unwrap().begin().await?;
