@@ -12,8 +12,13 @@ function valueToString(value: UrlParamValue): string {
   return encodeURIComponent(value.toString());
 }
 
-export default function createUrl(baseUrl: string, params: UrlParams): string {
+export default function createUrl(baseUrl: string, params?: UrlParams): string {
   const url = new URL(baseUrl);
+
+  if (!params) {
+    return url.toString();
+  }
+
   Object.entries(params).forEach(([key, value]) => {
     if (Array.isArray(value)) {
       url.searchParams.append(

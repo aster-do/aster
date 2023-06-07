@@ -28,7 +28,7 @@ export default function BillableChart({ title }: BillableChartProps) {
   const [frequency, setFrequency] = useState<Frequency>(Frequency.HOURLY);
   const [start, setStart] = useState<Date | undefined>(undefined);
   const [end, setEnd] = useState<Date | undefined>(undefined);
-  const { chartItems, success, loading } = useChartBillables({
+  const { data, success, loading } = useChartBillables({
     operator,
     frequency,
     start,
@@ -67,9 +67,9 @@ export default function BillableChart({ title }: BillableChartProps) {
         <MessageWrapper message="Error loading billables" show={!success}>
           <MessageWrapper
             message="No billables found"
-            show={chartItems.length === 0}
+            show={data && data.length === 0}
           >
-            <GroupedBarChart data={chartItems} options={chartOptions} />
+            <GroupedBarChart data={data ?? []} options={chartOptions} />
           </MessageWrapper>
         </MessageWrapper>
       </LoadingWrapper>

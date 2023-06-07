@@ -1,9 +1,8 @@
-import useSWR from 'swr';
 import { Frequency, Operator } from './billableFilter';
 import createUrl from '../../common/api/urlUtils';
 import API_URL from './api';
-import { runGetRequest } from '../../common/api';
 import { ChartItem } from './chartItem';
+import { SWRResponse, useGetSWR } from '../../common/api/swr';
 
 export interface Billable {
   name: string;
@@ -20,25 +19,13 @@ export interface BillableFilters {
   name?: string[];
 }
 
-export interface BillableResponse {
-  billables: Billable[];
-  loading: boolean;
-  success: boolean;
-}
-
-export interface ChartBillableResponse {
-  chartItems: ChartItem[];
-  loading: boolean;
-  success: boolean;
-}
-
-export function useBillables({
+export function useChartBillables({
   operator,
   frequency,
   start,
   end,
   name,
-}: BillableFilters): BillableResponse {
+}: BillableFilters): SWRResponse<ChartItem[]> {
   const url = createUrl(`${API_URL}/billables`, {
     operator,
     frequency: frequency === Frequency.NONE ? undefined : frequency,
@@ -46,33 +33,9 @@ export function useBillables({
     end,
     name,
   });
-  const { data, error, isLoading } = useSWR(url, () =>
-    runGetRequest<Billable[]>(url)
-  );
-
+  const { data, loading, success } = useGetSWR<Billable[]>(url);
   return {
-    billables: data?.body || [],
-    loading: isLoading,
-    success: !error,
-  };
-}
-
-export function useChartBillables({
-  operator,
-  frequency,
-  start,
-  end,
-  name,
-}: BillableFilters): ChartBillableResponse {
-  const { billables, success, loading } = useBillables({
-    operator,
-    frequency,
-    start,
-    end,
-    name,
-  });
-  return {
-    chartItems: billables.map(
+    data: data?.map(
       (billable) =>
         ({
           group: billable.name,

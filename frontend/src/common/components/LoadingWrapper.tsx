@@ -2,15 +2,15 @@ import { Box, CircularProgress } from '@mui/material';
 import React from 'react';
 
 export interface LoadingWrapperProps {
-  children?: React.ReactNode;
+  children?: React.ReactElement;
   loading?: boolean;
 }
 
 export default function LoadingWrapper({
   children,
   loading = false,
-}: LoadingWrapperProps) {
-  return (
+}: LoadingWrapperProps): React.ReactElement {
+  return loading || !children ? (
     <Box
       sx={{
         width: '100%',
@@ -21,7 +21,9 @@ export default function LoadingWrapper({
         justifyContent: 'center',
       }}
     >
-      {loading ? <CircularProgress /> : children}
+      <CircularProgress />
     </Box>
+  ) : (
+    children
   );
 }
