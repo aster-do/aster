@@ -1,7 +1,6 @@
 use async_graphql::{SimpleObject, ID};
 use chrono::Utc;
-
-use crate::db_models::BillablePersistence;
+use common::models::BillableSQL;
 
 #[derive(Debug, Clone, SimpleObject)]
 pub struct Billable {
@@ -20,13 +19,13 @@ pub struct Billing {
     pub items: Vec<Billable>,
 }
 
-impl From<BillablePersistence> for Billable {
-    fn from(persistence: BillablePersistence) -> Self {
+impl From<BillableSQL> for Billable {
+    fn from(persistence: BillableSQL) -> Self {
         Billable {
             id: persistence.id.to_string().into(),
             name: persistence.name,
             price: persistence.price,
-            timestamp: chrono::DateTime::<Utc>::from_utc(persistence.timestamp, Utc),
+            timestamp: chrono::DateTime::<Utc>::from_utc(persistence.timestamp.naive_utc(), Utc),
             value: persistence.value,
             treated: persistence.treated,
         }
