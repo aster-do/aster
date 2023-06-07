@@ -1,11 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import reportWebVitals from './reportWebVitals';
 import AppLayout from './common/components/AppLayout';
 import getRoutes, { navigationRoutes } from './common/navigation';
 import { AccountContextProvider } from './common/contexts/AccountContext';
+
+import '@carbon/styles/css/styles.css';
+import '@carbon/charts/styles.css';
+import './index.css';
 
 const router = createBrowserRouter([
   {
@@ -20,9 +25,11 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <AccountContextProvider>
-      <RouterProvider router={router} />
-    </AccountContextProvider>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <AccountContextProvider>
+        <RouterProvider router={router} />
+      </AccountContextProvider>
+    </LocalizationProvider>
   </React.StrictMode>
 );
 
