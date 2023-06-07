@@ -22,6 +22,7 @@ module.exports = {
   ],
   rules: {
     "@typescript-eslint/explicit-function-return-type": "off",
+    "react/require-default-props": "off",
   },
   ignorePatterns: [
     ".eslintrc.js"
