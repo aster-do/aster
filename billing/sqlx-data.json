@@ -1,0 +1,156 @@
+{
+  "db": "PostgreSQL",
+  "383433b36c60e6f25ed3d6e77bc5724f6d10d592a1ffcdefe4723d0aeaaa58f0": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "generated_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "items",
+          "ordinal": 2,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT * FROM billing WHERE id = $1"
+  },
+  "4e1ad0b88ddfab6c11f9124fab82fc1807ef15c929a0a1250c85930eec45a8bd": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Timestamptz",
+          "Text"
+        ]
+      }
+    },
+    "query": "INSERT INTO billing (id, generated_at, items) VALUES ($1, $2, $3)"
+  },
+  "7f51cad7792f966a7cc98406d0056a3157709573adeba27202781b2929e0bbd0": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "generated_at",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "items",
+          "ordinal": 2,
+          "type_info": "Text"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        true
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT * FROM billing"
+  },
+  "9345bc3408d43f6450c4ed8ff86aa068e9af4f0cba56630714dac147f3c4c2e2": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Int4"
+        },
+        {
+          "name": "name",
+          "ordinal": 1,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "price",
+          "ordinal": 2,
+          "type_info": "Int8"
+        },
+        {
+          "name": "timestamp",
+          "ordinal": 3,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "value",
+          "ordinal": 4,
+          "type_info": "Float8"
+        },
+        {
+          "name": "treated",
+          "ordinal": 5,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "SELECT * FROM billable WHERE id = $1"
+  },
+  "96bdffd5eaeaceed82f54e7a1cf3230cabdc7109130635f18ac3a5a26fd490f6": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Timestamptz",
+          "Text",
+          "Int4"
+        ]
+      }
+    },
+    "query": "UPDATE billing SET id = $1, generated_at = $2, items = $3 WHERE id = $4"
+  },
+  "a858600535e140fb6fac1c6878c48d7fee3e9fb01a53ce936990ff3f2e9fb356": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      }
+    },
+    "query": "DELETE FROM billing WHERE id = $1"
+  }
+}

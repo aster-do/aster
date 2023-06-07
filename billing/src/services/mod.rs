@@ -1,4 +1,6 @@
-use crate::schemas::{BillingSchema, MutationRoot, QueryRoot};
+pub mod database;
+
+use crate::graphql_schemas::{BillingSchema, MutationRoot, QueryRoot};
 use async_graphql::{http::GraphiQLSource, EmptySubscription, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use async_trait::async_trait;
