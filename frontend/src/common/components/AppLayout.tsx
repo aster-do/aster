@@ -26,7 +26,7 @@ export default function AppLayout({ routes }: AppLayoutProps) {
         <Box
           sx={{ flex: 1, backgroundColor: theme.palette.secondary.light, p: 4 }}
         >
-          <Typography variant="h4" sx={{ mb: 2 }}>
+          <Typography variant="h4" sx={{ mb: 4 }}>
             {title}
           </Typography>
           <Outlet />

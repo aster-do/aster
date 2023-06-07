@@ -1,17 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
-import {
-  List,
-  ListItemButton,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-  Stack,
-  useTheme,
-} from '@mui/material';
+import { List, ListItemButton, Stack, useTheme } from '@mui/material';
 import React from 'react';
 import { NavigationRoute } from '../navigation/models';
 import { useAccountContext } from '../contexts/AccountContext';
 import { AccountRole } from '../models/account';
+import SimpleSelect from './SimpleSelect';
 
 interface NavbarProps {
   routes: NavigationRoute[];
@@ -22,8 +15,8 @@ export default function Navbar({ routes }: NavbarProps) {
   const { palette } = useTheme();
   const { account, setRole } = useAccountContext();
 
-  const handleRoleChange = (event: SelectChangeEvent<AccountRole>) => {
-    setRole(event.target.value as AccountRole);
+  const handleRoleChange = (role: AccountRole) => {
+    setRole(role);
   };
 
   return (
@@ -44,15 +37,18 @@ export default function Navbar({ routes }: NavbarProps) {
         <img src="/logo.png" alt="Aster logo" style={{ width: '100%' }} />
       </Link>
       <Stack direction="column" spacing={1} sx={{ width: '100%' }}>
-        <Select
-          value={account.role}
+        <SimpleSelect
+          label="Account"
+          options={[
+            { value: AccountRole.USER, label: 'User' },
+            { value: AccountRole.OWNER, label: 'Owner' },
+            { value: AccountRole.MANAGER, label: 'Aster Manager' },
+          ]}
+          selected={account.role}
           onChange={handleRoleChange}
-          sx={{ width: '100%', borderRadius: '5px' }}
-        >
-          <MenuItem value={AccountRole.USER}>User</MenuItem>
-          <MenuItem value={AccountRole.OWNER}>Owner</MenuItem>
-          <MenuItem value={AccountRole.MANAGER}>Aster Manager</MenuItem>
-        </Select>
+          sx={{ width: '100%' }}
+          variant="outlined"
+        />
         <List sx={{ width: '100%' }}>
           {routes
             .filter(

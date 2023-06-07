@@ -1,8 +1,9 @@
 import React from 'react';
-import Hello from './components/hello';
 import { NavigationRoute } from '../common/navigation/models';
 import Layout from './Layout';
 import { AccountRole } from '../common/models/account';
+import Earnings from './components/Earnings';
+import Costs from './components/Costs';
 
 const DashboardRoutes: NavigationRoute = {
   name: 'Dashboard',
@@ -16,14 +17,14 @@ const DashboardRoutes: NavigationRoute = {
       path: 'earnings',
       roles: [AccountRole.OWNER],
       navbarVisible: true,
-      element: <Hello />,
+      element: <Earnings />,
     },
     {
       name: 'Costs',
       path: 'costs',
-      roles: [AccountRole.USER, AccountRole.OWNER],
+      roles: [AccountRole.USER],
       navbarVisible: true,
-      element: <Hello />,
+      element: <Costs />,
     },
   ],
 };
