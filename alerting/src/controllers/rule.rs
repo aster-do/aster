@@ -1,8 +1,7 @@
-use std::net::SocketAddr;
+use std::{net::SocketAddr, sync::Arc};
 
-use anyhow::{Ok, Result};
-
-use async_graphql::{http::GraphiQLSource, EmptyMutation, EmptySubscription, Schema};
+use anyhow::anyhow;
+use async_graphql::{http::GraphiQLSource, EmptySubscription, Object, Schema, ID};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse};
 use axum::{
     extract::Extension,
@@ -13,28 +12,42 @@ use axum::{
 use common::monitoring::readiness_handler;
 use log::info;
 
-use crate::services::rule::RuleService;
+use crate::{
+    models::{dtos::alerting_rule::AlertingRuleDTO, input::alerting_rule::AlertingRuleInput},
+    services::rule::RuleService,
+};
 
 #[derive(Debug)]
 pub struct RuleController {
     //Config & stateful info
-    _rule_service: RuleService,
+    rule_service: Arc<RuleService>,
     http_address: SocketAddr,
     readiness_endpoint: String,
 }
 
 impl RuleController {
-    pub async fn new(http_address: SocketAddr, readiness_endpoint: String) -> Result<Self> {
+    pub async fn new(
+        http_address: SocketAddr,
+        readiness_endpoint: String,
+    ) -> Result<Self, anyhow::Error> {
         Ok(Self {
             //Config & stateful info
-            _rule_service: RuleService::new().await,
+            rule_service: Arc::new(RuleService::new().await?),
             http_address,
             readiness_endpoint,
         })
     }
 
-    pub async fn start(&self) -> Result<()> {
-        let schema = Schema::new(QueryRoot, EmptyMutation, EmptySubscription);
+    pub async fn start(&self) -> Result<(), anyhow::Error> {
+        let schema = Schema::new(
+            QueryRule {
+                rule_service: self.rule_service.clone(),
+            },
+            MutationRule {
+                rule_service: self.rule_service.clone(),
+            },
+            EmptySubscription,
+        );
 
         let app = Router::new()
             .route("/", get(Self::graphiql).post(Self::graphql_handler))
@@ -51,7 +64,7 @@ impl RuleController {
     }
 
     async fn graphql_handler(
-        schema: Extension<Schema<QueryRoot, EmptyMutation, EmptySubscription>>,
+        schema: Extension<Schema<QueryRule, MutationRule, EmptySubscription>>,
         req: GraphQLRequest,
     ) -> GraphQLResponse {
         schema.execute(req.into_inner()).await.into()
@@ -61,16 +74,53 @@ impl RuleController {
     }
 }
 
-struct QueryRoot;
-#[async_graphql::Object]
-impl QueryRoot {
-    async fn rules(&self) -> String {
-        //TODO Call rule service
-        "Rules".to_owned()
+struct QueryRule {
+    //Config & stateful info
+    rule_service: Arc<RuleService>,
+}
+#[Object]
+impl QueryRule {
+    async fn rule(&self, id: ID) -> Result<AlertingRuleDTO, anyhow::Error> {
+        let rule = self
+            .rule_service
+            .get_rule(id.to_string())
+            .await?
+            .ok_or_else(|| anyhow!("Rule not found"))?;
+
+        Ok(rule.into())
     }
-    async fn rule(&self, id: i32) -> String {
-        //TODO Call rule service
-        format!("Rule {}", id)
+
+    async fn rules(&self) -> Result<Vec<AlertingRuleDTO>, anyhow::Error> {
+        let rules = self.rule_service.get_rules().await?;
+
+        Ok(rules.into_iter().map(|r| r.into()).collect())
+    }
+}
+
+struct MutationRule {
+    //Config & stateful info
+    rule_service: Arc<RuleService>,
+}
+
+#[Object]
+impl MutationRule {
+    async fn rule(&self, rule: AlertingRuleInput) -> Result<AlertingRuleDTO, anyhow::Error> {
+        let rule = self
+            .rule_service
+            .mutate_rule(rule.into())
+            .await
+            .map_err(|e| anyhow!("Error creating rule: {}", e))?;
+
+        Ok(rule.into())
+    }
+
+    async fn delete_rule(&self, id: ID) -> Result<bool, anyhow::Error> {
+        self.rule_service
+            .delete_rule(id.to_string())
+            .await
+            .map_err(|e| anyhow!("Error deleting rule: {}", e))?;
+
+        Ok(true)
     }
 }
 

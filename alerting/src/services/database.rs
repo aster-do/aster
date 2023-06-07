@@ -1,11 +1,10 @@
 use std::str::FromStr;
 
 use crate::models::{
-    alerting_rule::{_AlertingRule, _RuleTrigger, _RuleType},
-    database::{
-        fetch_alerting_rule::_AlertingRuleFetch, insert_alerting_rule::_AlertingRuleInsert,
-    },
+    alerting_rule::{AlertingRule, RuleTrigger, RuleType},
+    database::{fetch_alerting_rule::AlertingRuleFetch, insert_alerting_rule::AlertingRuleInsert},
 };
+use chrono::Utc;
 use sqlx::{
     postgres::{PgPool, PgPoolOptions},
     types::BigDecimal,
@@ -13,7 +12,7 @@ use sqlx::{
 
 #[derive(Debug, Default)]
 pub struct DatabaseService {
-    _pool: Option<PgPool>,
+    pool: Option<PgPool>,
 }
 
 impl DatabaseService {
@@ -30,28 +29,30 @@ impl DatabaseService {
             Err(_) => None,
         };
 
-        Self { _pool: pool }
+        Self { pool }
     }
 
-    pub async fn _create_rule(&self, rule: _AlertingRule) -> anyhow::Result<_AlertingRule> {
+    pub async fn create_rule(&self, rule: AlertingRule) -> anyhow::Result<AlertingRule> {
         let mut conn: sqlx::pool::PoolConnection<sqlx::Postgres> = self
-            ._pool
+            .pool
             .as_ref()
             .ok_or_else(|| anyhow::anyhow!("Alerting : No pool found"))?
             .acquire()
             .await
             .map_err(|e| anyhow::anyhow!("Alerting : Failed to acquire connection: {}", e))?;
 
-        let rule_to_insert = _AlertingRuleInsert {
-            id: rule._id.clone(),
-            name: rule._name.clone(),
-            rule_type: rule._rule_type._to_string(),
-            metric_name: rule._metric_name.clone(),
-            // TODO: Convert to bigDecimal
-            threshold: BigDecimal::from_str(&rule._threshold.to_string()).unwrap(),
-            trigger: rule._trigger._to_string(),
-            duration: rule._duration as i32,
-            notification_channel_ids: Some(format!("{:?}", rule._notification_channel_ids)),
+        let clone = rule.clone();
+
+        let rule_to_insert = AlertingRuleInsert {
+            id: rule.id.clone(),
+            name: rule.name.clone().unwrap_or_default(),
+            rule_type: rule.rule_type.unwrap_or_default().to_string(),
+            metric_name: rule.metric_name.unwrap_or_default().clone(),
+            threshold: BigDecimal::from_str(&rule.threshold.unwrap_or_default().to_string())
+                .unwrap(),
+            trigger: rule.trigger.unwrap_or_default().to_string(),
+            duration: rule.duration.unwrap_or_default() as i32,
+            notification_channel_ids: Some(format!("{:?}", rule.notification_channel_ids)),
         };
 
         sqlx::query!(
@@ -68,12 +69,12 @@ impl DatabaseService {
             &mut conn
         ).await.map_err(|e| anyhow::anyhow!("Alerting : Failed to insert rule: {}", e))?;
 
-        Ok(rule)
+        Ok(clone)
     }
 
-    pub async fn _delete_rule(&self, _rule_id: String) -> anyhow::Result<()> {
+    pub async fn delete_rule(&self, _rule_id: String) -> anyhow::Result<()> {
         let mut conn: sqlx::pool::PoolConnection<sqlx::Postgres> = self
-            ._pool
+            .pool
             .as_ref()
             .ok_or_else(|| anyhow::anyhow!("Alerting : No pool found"))?
             .acquire()
@@ -91,29 +92,31 @@ impl DatabaseService {
     pub async fn _update_rule(
         &self,
         _rule_id: String,
-        rule: _AlertingRule,
-    ) -> anyhow::Result<Option<_AlertingRule>> {
+        rule: AlertingRule,
+    ) -> anyhow::Result<Option<AlertingRule>> {
         // check if rule exists
-        let rule_to_update = &self._get_rule(_rule_id).await?;
+        let rule_to_update = &self.get_rule(_rule_id).await?;
 
         if rule_to_update.is_none() {
             return Ok(None);
         }
 
-        let rule_to_update = _AlertingRuleInsert {
-            id: rule._id.clone(),
-            name: rule._name.clone(),
-            rule_type: rule._rule_type._to_string(),
-            metric_name: rule._metric_name.clone(),
-            // TODO: Convert to bigDecimal
-            threshold: BigDecimal::from_str(&rule._threshold.to_string()).unwrap(),
-            trigger: rule._trigger._to_string(),
-            duration: rule._duration as i32,
-            notification_channel_ids: Some(format!("{:?}", rule._notification_channel_ids)),
+        let clone = rule.clone();
+
+        let rule_to_update = AlertingRuleInsert {
+            id: rule.id.clone(),
+            name: rule.name.unwrap_or_default().clone(),
+            rule_type: rule.rule_type.unwrap_or_default().to_string(),
+            metric_name: rule.metric_name.unwrap_or_default().clone(),
+            threshold: BigDecimal::from_str(&rule.threshold.unwrap_or_default().to_string())
+                .unwrap(),
+            trigger: rule.trigger.unwrap_or_default().to_string(),
+            duration: rule.duration.unwrap_or_default() as i32,
+            notification_channel_ids: Some(format!("{:?}", rule.notification_channel_ids)),
         };
 
         let mut conn: sqlx::pool::PoolConnection<sqlx::Postgres> = self
-            ._pool
+            .pool
             .as_ref()
             .ok_or_else(|| anyhow::anyhow!("Alerting : No pool found"))?
             .acquire()
@@ -134,66 +137,74 @@ impl DatabaseService {
             &mut conn
         ).await.map_err(|e| anyhow::anyhow!("Alerting : Failed to update rule: {}", e))?;
 
-        Ok(Some(rule))
+        Ok(Some(clone))
     }
 
-    pub async fn _get_rule(&self, _rule_id: String) -> anyhow::Result<Option<_AlertingRule>> {
-        let rule: Option<_AlertingRuleFetch> = sqlx::query_as!(
-            _AlertingRuleFetch,
+    pub async fn get_rule(&self, _rule_id: String) -> anyhow::Result<Option<AlertingRule>> {
+        let rule: Option<AlertingRuleFetch> = sqlx::query_as!(
+            AlertingRuleFetch,
             "SELECT * FROM alertingrule WHERE id = $1",
             _rule_id
         )
-        .fetch_optional(self._pool.as_ref().unwrap())
+        .fetch_optional(self.pool.as_ref().unwrap())
         .await
         .map_err(|e| anyhow::anyhow!("Alerting : Failed to fetch rule: {}", e))?;
 
-        Ok(rule.map(|rule| _AlertingRule {
-            _id: rule.id,
-            _name: rule.name,
-            _rule_type: _RuleType::_from_string(&rule.rule_type),
-            _metric_name: rule.metric_name,
-            _threshold: rule.threshold.to_string().parse().unwrap(),
-            _trigger: _RuleTrigger::_from_string(&rule.trigger),
-            _duration: rule.duration as u64,
-            _notification_channel_ids: rule
+        Ok(rule.map(|rule| AlertingRule {
+            id: rule.id,
+            name: Some(rule.name),
+            rule_type: Some(RuleType::from_string(&rule.rule_type)),
+            metric_name: Some(rule.metric_name),
+            threshold: Some(rule.threshold.to_string().parse().unwrap()),
+            trigger: Some(RuleTrigger::from_string(&rule.trigger)),
+            duration: Some(rule.duration as u64),
+            notification_channel_ids: rule
                 .notification_channel_ids
                 .map(|ids| {
-                    ids[1..ids.len() - 1]
-                        .split(", ")
-                        .map(|id| id.to_string())
-                        .collect()
+                    Some(
+                        ids[1..ids.len() - 1]
+                            .split(", ")
+                            .map(|id| id.to_string())
+                            .collect(),
+                    )
                 })
-                .unwrap_or(vec![]),
+                .unwrap_or(Some(vec![])),
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
         }))
     }
 
-    pub async fn _get_rules(&self) -> anyhow::Result<Vec<_AlertingRule>> {
-        let rules: Vec<_AlertingRuleFetch> =
-            sqlx::query_as!(_AlertingRuleFetch, "SELECT * FROM alertingrule")
-                .fetch_all(self._pool.as_ref().unwrap())
+    pub async fn get_rules(&self) -> anyhow::Result<Vec<AlertingRule>> {
+        let rules: Vec<AlertingRuleFetch> =
+            sqlx::query_as!(AlertingRuleFetch, "SELECT * FROM alertingrule")
+                .fetch_all(self.pool.as_ref().unwrap())
                 .await
                 .map_err(|e| anyhow::anyhow!("Alerting : Failed to fetch rules: {}", e))?;
 
         // Map AlertingRuleFetch to AlertingRule
-        let alerting_rules: Vec<_AlertingRule> = rules
+        let alerting_rules: Vec<AlertingRule> = rules
             .into_iter()
-            .map(|rule| _AlertingRule {
-                _id: rule.id,
-                _name: rule.name,
-                _rule_type: _RuleType::_from_string(&rule.rule_type),
-                _metric_name: rule.metric_name,
-                _threshold: rule.threshold.to_string().parse().unwrap(),
-                _trigger: _RuleTrigger::_from_string(&rule.trigger),
-                _duration: rule.duration as u64,
-                _notification_channel_ids: rule
+            .map(|rule| AlertingRule {
+                id: rule.id,
+                name: Some(rule.name),
+                rule_type: Some(RuleType::from_string(&rule.rule_type)),
+                metric_name: Some(rule.metric_name),
+                threshold: Some(rule.threshold.to_string().parse().unwrap()),
+                trigger: Some(RuleTrigger::from_string(&rule.trigger)),
+                duration: Some(rule.duration as u64),
+                notification_channel_ids: rule
                     .notification_channel_ids
                     .map(|ids| {
-                        ids[1..ids.len() - 1]
-                            .split(", ")
-                            .map(|id| id.to_string())
-                            .collect()
+                        Some(
+                            ids[1..ids.len() - 1]
+                                .split(", ")
+                                .map(|id| id.to_string())
+                                .collect(),
+                        )
                     })
-                    .unwrap_or(vec![]),
+                    .unwrap_or(Some(vec![])),
+                created_at: Utc::now(),
+                updated_at: Utc::now(),
             })
             .collect();
 
