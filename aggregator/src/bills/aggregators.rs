@@ -1,55 +1,94 @@
-use common::models::billable::BillableSQL;
+use common::models::billable::{BillableAggregate, BillableSQL};
+use log::info;
 use sqlx::types::chrono::{DateTime, Utc};
 
-use crate::bills::{AverageMetricPerHour, BillPerMetricAndHour};
+use super::AggregatesToBeWritten;
 
 pub fn aggregate(
     billings: Vec<BillableSQL>,
-) -> (Vec<BillPerMetricAndHour>, Vec<AverageMetricPerHour>) {
-    (
-        aggregate_by_hour_and_metric(billings),
-        vec![], //TODO
-    )
+    aggregations: Vec<BillableAggregate>,
+) -> AggregatesToBeWritten {
+    aggregate_by_hour_and_metric(billings, aggregations)
 }
 
 /// This will take metrics and aggregate them by name
-fn aggregate_by_hour_and_metric(billings: Vec<BillableSQL>) -> Vec<BillPerMetricAndHour> {
-    let mut bills_per_metric: Vec<BillPerMetricAndHour> = Vec::new();
+fn aggregate_by_hour_and_metric(
+    billings: Vec<BillableSQL>,
+    aggregations: Vec<BillableAggregate>,
+) -> AggregatesToBeWritten {
+    let mut inserts: Vec<BillableAggregate> = Vec::new();
+    let mut updates: Vec<BillableAggregate> = Vec::new();
+
+    let mut tmp_inserts: Vec<BillableAggregate> = Vec::new();
 
     billings.into_iter().for_each(|bill| {
-        let bill_per_metric = BillPerMetricAndHour {
-            id: None,
-            name: bill.name,
-            // we get the hour by rounding down the timestamp
-            hour: DateTime::from_utc(
-                chrono::NaiveDateTime::from_timestamp_opt(
-                    bill.timestamp.timestamp() - bill.timestamp.timestamp() % 3600,
-                    0,
-                )
-                .unwrap_or(bill.timestamp.naive_utc()),
-                Utc,
-            ),
-            price: bill.price,
-        };
+        // we get the hour by rounding down the timestamp
+        let timestamp = DateTime::from_utc(
+            chrono::NaiveDateTime::from_timestamp_opt(
+                bill.timestamp.timestamp() - bill.timestamp.timestamp() % 3600,
+                0,
+            )
+            .unwrap_or(bill.timestamp.naive_utc()),
+        Utc);
 
-        if bills_per_metric.is_empty() {
-            bills_per_metric.push(bill_per_metric);
-        } else {
-            let mut found = false;
-            for bill in bills_per_metric.iter_mut() {
-                if bill.name == bill_per_metric.name && bill.hour == bill_per_metric.hour {
-                    bill.price += bill_per_metric.price;
-                    found = true;
-                    break;
+        info!("Aggregating billable {} at {} with values: min: {}, max: {}, avg: {}, count: {}, sum: {}", bill.name, timestamp, bill.value, bill.value, bill.value, 1.0, bill.value);
+
+        match aggregations.iter().find(
+            |agg| agg.name == bill.name && agg.timestamp == timestamp,
+        ) {
+            Some(existing_aggregate) => {
+                updates.push(BillableAggregate {
+                    name: existing_aggregate.name.clone(),
+                    timestamp,
+                    min: f64::min(bill.value, existing_aggregate.min),
+                    max: f64::max(bill.value, existing_aggregate.max),
+                    avg: (bill.value + existing_aggregate.avg) / (existing_aggregate.count + 1.0),
+                    count: existing_aggregate.count + 1.0,
+                    sum: existing_aggregate.sum + bill.value, // sum of values
+                });
+            }
+            None => {
+                tmp_inserts.push(BillableAggregate {
+                    name: bill.name,
+                    timestamp,
+                    min: bill.value,
+                    max: bill.value,
+                    avg: bill.value,
+                    count: 1.0,
+                    sum: bill.value,
+                });
+            }
+        }
+
+    });
+
+    // we then do the same but in insert
+    tmp_inserts.iter().for_each(|agg| {
+        match inserts
+            .iter()
+            .position(|i| i.to_owned().name == agg.name && i.timestamp == agg.timestamp)
+        {
+            Some(existing_insert_index) => {
+                inserts[existing_insert_index] = BillableAggregate {
+                    name: inserts[existing_insert_index].name.clone(),
+                    timestamp: inserts[existing_insert_index].timestamp,
+                    min: f64::min(agg.min, inserts[existing_insert_index].min),
+                    max: f64::max(agg.max, inserts[existing_insert_index].max),
+                    avg: (agg.avg // because it was the first time it was inserted the average equals the value
+                        + inserts[existing_insert_index].avg)
+                        / (inserts[existing_insert_index].count + 1.0),
+                    count: inserts[existing_insert_index].count + 1.0,
+                    sum: inserts[existing_insert_index].sum + agg.sum,
                 }
             }
-            if !found {
-                bills_per_metric.push(bill_per_metric);
-            }
+            None => inserts.push(agg.clone()),
         }
     });
 
-    bills_per_metric
+    AggregatesToBeWritten {
+        _inserts: inserts,
+        _updates: updates,
+    }
 }
 
 #[cfg(test)]
@@ -57,6 +96,7 @@ mod tests {
     use chrono::TimeZone;
 
     use super::*;
+    use pretty_assertions::assert_eq;
 
     #[test]
     fn test_aggregation() {
@@ -66,7 +106,7 @@ mod tests {
                 name: "test".to_string(),
                 price: 10,
                 timestamp: chrono::Utc.with_ymd_and_hms(2023, 3, 2, 10, 10, 9).unwrap(),
-                value: 1.0,
+                value: 3.0,
                 treated: false,
             },
             BillableSQL {
@@ -86,7 +126,7 @@ mod tests {
                 timestamp: chrono::Utc
                     .with_ymd_and_hms(2025, 3, 2, 10, 10, 36)
                     .unwrap(),
-                value: 1.0,
+                value: 11.0,
                 treated: false,
             },
             BillableSQL {
@@ -96,24 +136,32 @@ mod tests {
                 timestamp: chrono::Utc
                     .with_ymd_and_hms(2025, 3, 2, 11, 10, 36)
                     .unwrap(),
-                value: 1.0,
+                value: 1234.0,
                 treated: false,
             },
         ];
 
-        let aggregated = aggregate(billings);
+        let aggregated = aggregate(billings, vec![]);
 
-        assert_eq!(aggregated.0.len(), 3);
-        assert_eq!(aggregated.0[0].name, "test");
-        assert_eq!(aggregated.0[0].price, 20);
-        assert_eq!(aggregated.0[1].name, "test2");
-        assert_eq!(aggregated.0[1].price, 10);
-        assert_eq!(aggregated.0[2].name, "test2");
-        assert_eq!(aggregated.0[2].price, 1234);
+        println!("{:?}", aggregated._inserts);
+
+        assert!(aggregated._updates.is_empty());
+        assert_eq!(aggregated._inserts.len(), 3);
+
+        assert_eq!(aggregated._inserts[0].name, "test");
+        assert_eq!(aggregated._inserts[0].sum, 4.0);
+        assert_eq!(aggregated._inserts[0].avg, 2.0);
+        assert_eq!(aggregated._inserts[0].count, 2.0);
+        assert_eq!(aggregated._inserts[0].min, 1.0);
+        assert_eq!(aggregated._inserts[0].max, 3.0);
+        assert_eq!(aggregated._inserts[1].name, "test2");
+        assert_eq!(aggregated._inserts[1].sum, 11.0);
+        assert_eq!(aggregated._inserts[2].name, "test2");
+        assert_eq!(aggregated._inserts[2].sum, 1234.0);
 
         // we ensure that the hour is rounded down
         assert_eq!(
-            aggregated.0[0].hour,
+            aggregated._inserts[0].timestamp,
             chrono::Utc.with_ymd_and_hms(2023, 3, 2, 10, 0, 0).unwrap()
         );
     }

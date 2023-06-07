@@ -12,6 +12,60 @@
     },
     "query": "UPDATE billables.BILLABLE SET TREATED = TRUE WHERE ID = ANY($1)"
   },
+  "7b137abb3909513458f57381abba62568f38037bbec314d2ca8a03e124a49211": {
+    "describe": {
+      "columns": [
+        {
+          "name": "name",
+          "ordinal": 0,
+          "type_info": "Varchar"
+        },
+        {
+          "name": "timestamp",
+          "ordinal": 1,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "min",
+          "ordinal": 2,
+          "type_info": "Float8"
+        },
+        {
+          "name": "max",
+          "ordinal": 3,
+          "type_info": "Float8"
+        },
+        {
+          "name": "avg",
+          "ordinal": 4,
+          "type_info": "Float8"
+        },
+        {
+          "name": "count",
+          "ordinal": 5,
+          "type_info": "Float8"
+        },
+        {
+          "name": "sum",
+          "ordinal": 6,
+          "type_info": "Float8"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": []
+      }
+    },
+    "query": "SELECT * FROM billables.BILLABLE_AGGREGATE"
+  },
   "e0e45a7e10e85479a6427782fc0d828b4b4a730259621f0bccec5b886549547b": {
     "describe": {
       "columns": [
