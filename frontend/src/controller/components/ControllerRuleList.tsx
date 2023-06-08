@@ -2,7 +2,7 @@ import React from 'react';
 import { Stack } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Rule, deleteRule, useRules } from '../model/rule';
-import ControllerRuleControl from './ControllerRuleControl';
+import ControllerRuleControl from './RuleControl';
 import RuleList from './RuleList';
 
 export default function ControllerRuleList() {
@@ -22,7 +22,7 @@ export default function ControllerRuleList() {
   };
 
   return (
-    <Stack direction="column" sx={{ width: '100%' }}>
+    <Stack direction="column" sx={{ width: '100%' }} spacing={2}>
       {data && data.length > 0 && (
         <ControllerRuleControl onAdd={handleClickAdd} />
       )}

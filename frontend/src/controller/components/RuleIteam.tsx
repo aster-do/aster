@@ -34,12 +34,12 @@ export default function RuleItem({ rule, onEdit, onDelete }: RuleItemProps) {
             rule.operation
           )} ${rule.number}`}</Typography>
         </CardContent>
-        <CardActions>
-          <Button size="small" color="primary" onClick={handleDelete}>
-            Delete
-          </Button>
-        </CardActions>
       </CardActionArea>
+      <CardActions>
+        <Button size="small" color="primary" onClick={handleDelete}>
+          Delete
+        </Button>
+      </CardActions>
     </Card>
   );
 }
