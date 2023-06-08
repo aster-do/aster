@@ -11,11 +11,15 @@ export interface ApiResponse<T> {
   body?: T;
 }
 
+export const defaultHeaders = {
+  'Content-Type': 'application/json',
+};
+
 export async function runRequest<ReturnType, BodyType>(
   url: string,
   method: HttpMethod,
   body?: BodyType,
-  headers: HeadersInit = {}
+  headers: HeadersInit = defaultHeaders
 ): Promise<ApiResponse<ReturnType>> {
   const response = await fetch(url, {
     method,
@@ -31,7 +35,7 @@ export async function runRequest<ReturnType, BodyType>(
 
 export async function runGetRequest<ReturnType>(
   url: string,
-  headers: HeadersInit = {}
+  headers: HeadersInit = defaultHeaders
 ): Promise<ApiResponse<ReturnType>> {
   return runRequest<ReturnType, undefined>(
     url,
@@ -44,7 +48,7 @@ export async function runGetRequest<ReturnType>(
 export async function runPostRequest<ReturnType, BodyType>(
   url: string,
   body: BodyType,
-  headers: HeadersInit = {}
+  headers: HeadersInit = defaultHeaders
 ): Promise<ApiResponse<ReturnType>> {
   return runRequest<ReturnType, BodyType>(url, HttpMethod.POST, body, headers);
 }
@@ -52,7 +56,7 @@ export async function runPostRequest<ReturnType, BodyType>(
 export async function runPutRequest<ReturnType, BodyType>(
   url: string,
   body: BodyType,
-  headers: HeadersInit = {}
+  headers: HeadersInit = defaultHeaders
 ): Promise<ApiResponse<ReturnType>> {
   return runRequest<ReturnType, BodyType>(url, HttpMethod.PUT, body, headers);
 }
@@ -60,7 +64,7 @@ export async function runPutRequest<ReturnType, BodyType>(
 export async function runDeleteRequest<ReturnType, BodyType>(
   url: string,
   body?: BodyType,
-  headers: HeadersInit = {}
+  headers: HeadersInit = defaultHeaders
 ): Promise<ApiResponse<ReturnType>> {
   return runRequest<ReturnType, BodyType>(
     url,
@@ -73,7 +77,7 @@ export async function runDeleteRequest<ReturnType, BodyType>(
 export async function runPatchRequest<ReturnType, BodyType>(
   url: string,
   body: BodyType,
-  headers: HeadersInit = {}
+  headers: HeadersInit = defaultHeaders
 ): Promise<ApiResponse<ReturnType>> {
   return runRequest<ReturnType, BodyType>(url, HttpMethod.PATCH, body, headers);
 }
