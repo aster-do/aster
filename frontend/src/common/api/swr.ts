@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { runGetRequest, runPostRequest } from '.';
+import { defaultHeaders, runGetRequest, runPostRequest } from '.';
 
 export interface SWRResponse<T> {
   data?: T;
@@ -9,7 +9,7 @@ export interface SWRResponse<T> {
 
 export function useGetSWR<ReturnType>(
   url: string,
-  headers: HeadersInit = {}
+  headers: HeadersInit = defaultHeaders
 ): SWRResponse<ReturnType> {
   const { data, error, isLoading } = useSWR(url, () =>
     runGetRequest<ReturnType>(url, headers)
@@ -25,7 +25,7 @@ export function useGetSWR<ReturnType>(
 export function usePostSWR<ReturnType, BodyType>(
   url: string,
   body: BodyType,
-  headers: HeadersInit = {}
+  headers: HeadersInit = defaultHeaders
 ): SWRResponse<ReturnType> {
   const { data, error, isLoading } = useSWR(url, () =>
     runPostRequest<ReturnType, BodyType>(url, body, headers)
