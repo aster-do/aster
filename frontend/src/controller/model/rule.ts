@@ -62,7 +62,11 @@ export async function getRule(ruleId: number): Promise<ApiResponse<Rule>> {
 }
 
 export async function createRule(rule: Rule): Promise<ApiResponse<Rule>> {
-  return runPostRequest<Rule, Rule>(`${CONTROLLER_API_URL}/rules`, rule);
+  return runPostRequest<Rule, RuleCreate>(`${CONTROLLER_API_URL}/rules`, {
+    name: rule.name,
+    operation: rule.operation,
+    number: rule.number,
+  } as RuleCreate);
 }
 
 export async function deleteRule(
