@@ -1,28 +1,28 @@
 [workspace]
 members = [
-    "aggregator",
-    "alerting",
-    "aster",
-    "billable",
-    "billing",
-    "collector",
-    "common",
-    "connector",
-    "controller",
-    "dashboard",
-    "notification",
-    "frontend_server"
+  "aggregator",
+  "alerting",
+  "aster",
+  "billable",
+  "billing",
+  "collector",
+  "common",
+  "connector",
+  "controller",
+  "dashboard",
+  "notification",
+  "frontend_server",
 ]
 default-members = ["aster"]
 
 
-[workspace.dependencies]  
+[workspace.dependencies]
 tokio = "1.28.2"
 anyhow = "1.0.71"
 async-trait = "0.1.68"
 chrono = "0.4.26"
 log = "0.4.18"
-sqlx =  "0.6.3" 
+sqlx = "0.6.3"
 axum = "0.6.18"
 axum-macros = "0.3.7"
 thiserror = "1.0.40"
@@ -30,3 +30,4 @@ async-graphql = "5.0.9"
 async-graphql-axum = "5.0.9"
 serde = "1.0.163"
 reqwest = "0.11"
+tower-http = "0.4.0"

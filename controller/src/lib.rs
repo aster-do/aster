@@ -15,6 +15,7 @@ use common::{
 };
 use log::info;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use tower_http::cors::CorsLayer;
 
 pub mod billable_rule_service;
 
@@ -73,6 +74,7 @@ impl AsterService for ControllerService {
             .route(READINESS_SERVER_ENDPOINT, get(readiness_handler))
             .route("/rules", get(get_billable_rules))
             .route("/rules", post(post_billable_rules))
+            .layer(CorsLayer::permissive())
             .with_state(state);
 
         Server::bind(SERVER_ADDRESS)
