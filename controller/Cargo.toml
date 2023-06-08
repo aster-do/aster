@@ -9,8 +9,15 @@ edition = "2021"
 common = { path = "../common" }
 async-trait = { workspace = true }
 anyhow = { workspace = true }
-log = {workspace = true}
+log = { workspace = true }
 axum = { workspace = true, features = ["macros"] }
 axum-macros = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
-sqlx = { workspace = true, features = ["runtime-tokio-native-tls", "postgres", "time", "uuid", "offline"] }
+tower-http = { workspace = true, features = ["cors"] }
+sqlx = { workspace = true, features = [
+  "runtime-tokio-native-tls",
+  "postgres",
+  "time",
+  "uuid",
+  "offline",
+] }
