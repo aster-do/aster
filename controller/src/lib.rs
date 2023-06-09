@@ -74,6 +74,7 @@ impl AsterService for ControllerService {
             .route(READINESS_SERVER_ENDPOINT, get(readiness_handler))
             .route("/rules", get(get_billable_rules))
             .route("/rules", post(post_billable_rules))
+            .route("/rules/:rule_id", get(get_billable_rule_by_id))
             .route("/rules/:rule_id", delete(delete_billable_rule_by_id))
             .layer(CorsLayer::permissive())
             .with_state(state);
@@ -106,6 +107,24 @@ async fn delete_billable_rule_by_id(
 
     match billable {
         Ok(_) => Json(None),
+        Err(e) => {
+            log::error!("Error: {}", e);
+            Json(None)
+        }
+    }
+}
+
+#[debug_handler]
+async fn get_billable_rule_by_id(
+    State(state): State<AppState>,
+    Path(rule_id): Path<i32>,
+) -> Json<Option<BillableRulePersistent>> {
+    log::debug!("Received request for controller:");
+
+    let billable = state.billable_rules_service.get_by_id(rule_id).await;
+
+    match billable {
+        Ok(billable) => Json(billable),
         Err(e) => {
             log::error!("Error: {}", e);
             Json(None)
