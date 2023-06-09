@@ -1,16 +1,10 @@
 use axum::{
-    extract::{Path, State},
     routing::{delete, get, post},
-    Json, Router, Server,
+    Router, Server,
 };
-use axum_macros::debug_handler;
 use billable_rule_service::BillableRuleService;
 use common::{
-    messaging::tokio_broadcast::CrossbeamMessagingFactory,
-    models::billable_rules::{
-        billable_rule_dto::BillableRuleDto, billable_rule_persistent::BillableRulePersistent,
-    },
-    monitoring::readiness_handler,
+    messaging::tokio_broadcast::CrossbeamMessagingFactory, monitoring::readiness_handler,
     AsterService,
 };
 use log::info;
@@ -18,14 +12,15 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use tower_http::cors::CorsLayer;
 
 pub mod billable_rule_service;
+mod routes;
+
+use routes::{
+    delete_billable_rule_by_id, get_billable_rule_by_id, get_billable_rules, post_billable_rules,
+    AppState,
+};
 
 const SERVER_ADDRESS: &SocketAddr = &SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 3032);
 const READINESS_SERVER_ENDPOINT: &str = "/health";
-
-#[derive(Clone)]
-pub struct AppState {
-    pub billable_rules_service: BillableRuleService,
-}
 
 pub struct ControllerService {
     pub billable_rules_service: Option<BillableRuleService>,
@@ -85,63 +80,6 @@ impl AsterService for ControllerService {
 
         Ok(())
     }
-}
-
-#[debug_handler]
-async fn get_billable_rules(State(state): State<AppState>) -> Json<Vec<BillableRulePersistent>> {
-    log::debug!("Received request for controller:");
-    let billables: Vec<BillableRulePersistent> =
-        state.billable_rules_service.get_all().await.unwrap();
-
-    Json(billables)
-}
-
-#[debug_handler]
-async fn delete_billable_rule_by_id(
-    State(state): State<AppState>,
-    Path(rule_id): Path<i32>,
-) -> Json<Option<BillableRulePersistent>> {
-    log::debug!("Received request for controller:");
-
-    let billable = state.billable_rules_service.delete(rule_id).await;
-
-    match billable {
-        Ok(_) => Json(None),
-        Err(e) => {
-            log::error!("Error: {}", e);
-            Json(None)
-        }
-    }
-}
-
-#[debug_handler]
-async fn get_billable_rule_by_id(
-    State(state): State<AppState>,
-    Path(rule_id): Path<i32>,
-) -> Json<Option<BillableRulePersistent>> {
-    log::debug!("Received request for controller:");
-
-    let billable = state.billable_rules_service.get_by_id(rule_id).await;
-
-    match billable {
-        Ok(billable) => Json(billable),
-        Err(e) => {
-            log::error!("Error: {}", e);
-            Json(None)
-        }
-    }
-}
-
-#[debug_handler]
-async fn post_billable_rules(
-    State(state): State<AppState>,
-    Json(dto): Json<BillableRuleDto>,
-) -> Json<BillableRulePersistent> {
-    log::debug!("Received request for controller:");
-
-    let billable = state.billable_rules_service.create(&dto).await.unwrap();
-
-    Json(billable)
 }
 
 #[cfg(test)]
