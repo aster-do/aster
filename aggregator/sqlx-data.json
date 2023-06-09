@@ -18,7 +18,7 @@
     },
     "query": "UPDATE BILLABLE_AGGREGATE SET MIN = $1, MAX = $2, AVG = $3, COUNT = $4, SUM = $5  WHERE \"timestamp\" = $6 AND NAME = $7"
   },
-  "315e7a291ed22da141d8621f8cc3cb47b565f690f101446cc1f22c69394a4094": {
+  "306923764a2440f11c0c80f10865cb0dd2e2fc71db7b6c7dd4544ce935453867": {
     "describe": {
       "columns": [
         {
@@ -67,12 +67,10 @@
         false
       ],
       "parameters": {
-        "Left": [
-          "TimestamptzArray"
-        ]
+        "Left": []
       }
     },
-    "query": "SELECT * FROM BILLABLE_AGGREGATE WHERE TIMESTAMP = ANY($1)"
+    "query": "SELECT * FROM BILLABLE_AGGREGATE"
   },
   "4a074b333453e9f329dd72a68b6ef861f801c288f36e464f5438dc2ed1cd3c64": {
     "describe": {
