@@ -30,6 +30,15 @@ impl BillableRulePersistent {
 
         Ok(billable_rule_persistent)
     }
+
+    pub fn update_from(&mut self, rule: &BillableRuleDto, id: i32) -> Result<(), anyhow::Error> {
+        self.id = id;
+        self.name = rule.name.clone();
+        self.operation = BillableOperationPersistent::from(&rule.operation);
+        self.number = rule.number as i32;
+
+        Ok(())
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, sqlx::Type, Serialize)]
