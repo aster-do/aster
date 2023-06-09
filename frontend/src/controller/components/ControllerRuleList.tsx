@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Stack } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { enqueueSnackbar } from 'notistack';
 import { Rule, deleteRule, getRules } from '../model/rule';
 import ControllerRuleControl from './RuleControl';
 import RuleList from './RuleList';
@@ -16,7 +17,9 @@ export default function ControllerRuleList() {
           setRules(response.body ?? []);
         }
       })
-      .catch(() => console.error('Unable to get rules'));
+      .catch(() =>
+        enqueueSnackbar("Couldn't load rules", { variant: 'error' })
+      );
   }, []);
 
   const handleClickAdd = () => {
@@ -36,9 +39,13 @@ export default function ControllerRuleList() {
               setRules(response.body ?? []);
             }
           })
-          .catch(() => console.error('Unable to get rules'))
+          .catch(() =>
+            enqueueSnackbar("Couldn't load rules", { variant: 'error' })
+          )
       )
-      .catch(() => console.error('Unable to delete rule'));
+      .catch(() =>
+        enqueueSnackbar("Couldn't delete rule", { variant: 'error' })
+      );
   };
 
   return (

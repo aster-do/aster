@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { SnackbarProvider } from 'notistack';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import reportWebVitals from './reportWebVitals';
@@ -26,9 +27,11 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <AccountContextProvider>
-        <RouterProvider router={router} />
-      </AccountContextProvider>
+      <SnackbarProvider maxSnack={3} autoHideDuration={6000}>
+        <AccountContextProvider>
+          <RouterProvider router={router} />
+        </AccountContextProvider>
+      </SnackbarProvider>
     </LocalizationProvider>
   </React.StrictMode>
 );
