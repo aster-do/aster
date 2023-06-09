@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, InputObject, Serialize, Deserialize)]
 pub struct AlertingRuleInput {
-    pub id: ID,
+    pub id: Option<ID>,
     pub name: Option<String>,
     pub rule_type: Option<RuleTypeInput>,
     pub metric_name: Option<String>,

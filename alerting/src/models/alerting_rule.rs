@@ -21,7 +21,7 @@ pub struct AlertingRule {
 impl From<AlertingRuleInput> for AlertingRule {
     fn from(input: AlertingRuleInput) -> Self {
         Self {
-            id: input.id.to_string(),
+            id: input.id.unwrap_or_default().to_string(),
             name: input.name,
             rule_type: input.rule_type.map(|rule_type| rule_type.into()),
             metric_name: input.metric_name,
