@@ -1,13 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Stack } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { Rule, deleteRule, useRules } from '../model/rule';
+import { Rule, deleteRule, getRules } from '../model/rule';
 import ControllerRuleControl from './RuleControl';
 import RuleList from './RuleList';
 
 export default function ControllerRuleList() {
-  const { data } = useRules();
+  const [rules, setRules] = useState<Rule[]>([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    getRules()
+      .then((response) => {
+        if (response.status === 200) {
+          setRules(response.body ?? []);
+        }
+      })
+      .catch(() => console.error('Unable to get rules'));
+  }, []);
 
   const handleClickAdd = () => {
     navigate('/rules/create');
@@ -18,16 +28,24 @@ export default function ControllerRuleList() {
   };
 
   const handleDelete = (rule: Rule) => {
-    deleteRule(rule.id).catch(() => console.error('Unable to delete rule'));
+    deleteRule(rule.id)
+      .then(() =>
+        getRules()
+          .then((response) => {
+            if (response.status === 200) {
+              setRules(response.body ?? []);
+            }
+          })
+          .catch(() => console.error('Unable to get rules'))
+      )
+      .catch(() => console.error('Unable to delete rule'));
   };
 
   return (
     <Stack direction="column" sx={{ width: '100%' }} spacing={2}>
-      {data && data.length > 0 && (
-        <ControllerRuleControl onAdd={handleClickAdd} />
-      )}
+      {rules.length > 0 && <ControllerRuleControl onAdd={handleClickAdd} />}
       <RuleList
-        rules={data ?? []}
+        rules={rules}
         onClickAdd={handleClickAdd}
         onClickEdit={handleClickEdit}
         onClickDelete={handleDelete}

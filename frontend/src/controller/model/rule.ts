@@ -4,7 +4,6 @@ import {
   runGetRequest,
   runPostRequest,
 } from '../../common/api';
-import { SWRResponse, useGetSWR } from '../../common/api/swr';
 import createUrl from '../../common/api/urlUtils';
 import CONTROLLER_API_URL from './api';
 
@@ -52,9 +51,9 @@ export function getRuleOperationDisplay(operation: RuleOperation): string {
   }
 }
 
-export function useRules(): SWRResponse<Rule[]> {
+export async function getRules(): Promise<ApiResponse<Rule[]>> {
   const url = createUrl(`${CONTROLLER_API_URL}/rules`);
-  return useGetSWR<Rule[]>(url);
+  return runGetRequest<Rule[]>(url);
 }
 
 export async function getRule(ruleId: number): Promise<ApiResponse<Rule>> {
