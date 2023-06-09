@@ -1,5 +1,5 @@
 use axum::{
-    routing::{delete, get, post},
+    routing::{delete, get, post, put},
     Router, Server,
 };
 use billable_rule_service::BillableRuleService;
@@ -16,7 +16,7 @@ mod routes;
 
 use routes::{
     delete_billable_rule_by_id, get_billable_rule_by_id, get_billable_rules, post_billable_rules,
-    AppState,
+    put_billable_rule, AppState,
 };
 
 const SERVER_ADDRESS: &SocketAddr = &SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 3032);
@@ -71,6 +71,7 @@ impl AsterService for ControllerService {
             .route("/rules", post(post_billable_rules))
             .route("/rules/:rule_id", get(get_billable_rule_by_id))
             .route("/rules/:rule_id", delete(delete_billable_rule_by_id))
+            .route("/rules/:rule_id", put(put_billable_rule))
             .layer(CorsLayer::permissive())
             .with_state(state);
 

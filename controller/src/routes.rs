@@ -69,3 +69,45 @@ pub async fn post_billable_rules(
 
     Json(billable)
 }
+
+#[debug_handler]
+pub async fn put_billable_rule(
+    State(state): State<AppState>,
+    Path(rule_id): Path<i32>,
+    Json(dto): Json<BillableRuleDto>,
+) -> Json<Option<BillableRulePersistent>> {
+    log::debug!("Received request for controller:");
+
+    let fetched_billable_rule = state.billable_rules_service.get_by_id(rule_id).await;
+
+    let mut billable_rule = match fetched_billable_rule {
+        Ok(rule) => match rule {
+            Some(rule) => rule,
+            None => {
+                log::error!("Could not find billable rule with id: {}", rule_id);
+                return Json(None);
+            }
+        },
+        Err(e) => {
+            log::error!("Error {} getting billable rule with id: {}", e, rule_id);
+            return Json(None);
+        }
+    };
+
+    billable_rule.id = rule_id;
+
+    if billable_rule.update_from(&dto, rule_id).is_err() {
+        log::error!("Error updating billable rule with id: {}", rule_id);
+        return Json(None);
+    }
+
+    let persisted_billable_rule = state.billable_rules_service.update(&billable_rule).await;
+
+    match persisted_billable_rule {
+        Ok(rule) => Json(Some(rule)),
+        Err(e) => {
+            log::error!("Error updating billable rule with id: {}", e);
+            Json(None)
+        }
+    }
+}
