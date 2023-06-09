@@ -1,5 +1,6 @@
 import { Stack } from '@mui/material';
 import React, { useState } from 'react';
+import { AxisChartOptions, ScaleTypes } from '@carbon/charts/interfaces';
 import { GroupedBarChart } from '@carbon/charts-react';
 import BillableChartControl from './BillableChartControl';
 import { Frequency, Operator } from '../model/billableFilter';
@@ -12,16 +13,18 @@ interface BillableChartProps {
 }
 
 export default function BillableChart({ title }: BillableChartProps) {
-  const chartOptions = {
+  const chartOptions: AxisChartOptions = {
     title,
     axes: {
       left: {
         mapsTo: 'value',
       },
       bottom: {
+        scaleType: ScaleTypes.TIME,
         mapsTo: 'key',
       },
     },
+
     height: '400px',
   };
   const [operator, setOperator] = useState<Operator>(Operator.AVG);

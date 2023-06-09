@@ -39,7 +39,7 @@ export function useChartBillables({
       (billable) =>
         ({
           group: billable.name,
-          key: billable.timestamp,
+          key: new Date(billable.timestamp),
           value: billable.value,
         } as ChartItem)
     ),
