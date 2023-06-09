@@ -1,6 +1,6 @@
 use axum::{
-    extract::State,
-    routing::{get, post},
+    extract::{Path, State},
+    routing::{delete, get, post},
     Json, Router, Server,
 };
 use axum_macros::debug_handler;
@@ -74,6 +74,7 @@ impl AsterService for ControllerService {
             .route(READINESS_SERVER_ENDPOINT, get(readiness_handler))
             .route("/rules", get(get_billable_rules))
             .route("/rules", post(post_billable_rules))
+            .route("/rules/:rule_id", delete(delete_billable_rule_by_id))
             .layer(CorsLayer::permissive())
             .with_state(state);
 
@@ -92,6 +93,24 @@ async fn get_billable_rules(State(state): State<AppState>) -> Json<Vec<BillableR
         state.billable_rules_service.get_all().await.unwrap();
 
     Json(billables)
+}
+
+#[debug_handler]
+async fn delete_billable_rule_by_id(
+    State(state): State<AppState>,
+    Path(rule_id): Path<i32>,
+) -> Json<Option<BillableRulePersistent>> {
+    log::debug!("Received request for controller:");
+
+    let billable = state.billable_rules_service.delete(rule_id).await;
+
+    match billable {
+        Ok(_) => Json(None),
+        Err(e) => {
+            log::error!("Error: {}", e);
+            Json(None)
+        }
+    }
 }
 
 #[debug_handler]
