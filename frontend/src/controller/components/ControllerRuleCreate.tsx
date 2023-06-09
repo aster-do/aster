@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { enqueueSnackbar } from 'notistack';
 import { Stack, Typography } from '@mui/material';
 import { Rule, createRule, defaultRule } from '../model/rule';
 import RuleEditor from './RuleEditor';
@@ -13,7 +14,12 @@ export default function ControllerRuleCreate() {
   const handleSave = (r: Rule) => {
     setLoading(true);
     createRule(r)
-      .catch(() => console.error('Unable to create rule'))
+      .then(() => {
+        enqueueSnackbar('Rule created', { variant: 'success' });
+      })
+      .catch(() =>
+        enqueueSnackbar("Couldn't create rule", { variant: 'error' })
+      )
       .finally(() => {
         setLoading(false);
         navigate('/rules/list');

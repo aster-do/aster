@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { enqueueSnackbar } from 'notistack';
 import { Stack, Typography } from '@mui/material';
 import { Rule, createRule, defaultRule, getRule } from '../model/rule';
 import RuleEditor from './RuleEditor';
@@ -20,7 +21,9 @@ export default function ControllerRuleEdit() {
         .then((response) => {
           setRule(response.body ?? defaultRule);
         })
-        .catch(() => console.error('Unable to fetch rule'))
+        .catch(() =>
+          enqueueSnackbar("Couldn't load rule", { variant: 'error' })
+        )
         .finally(() => setLoading(false));
     }
   }, [id]);
@@ -28,7 +31,9 @@ export default function ControllerRuleEdit() {
   const handleSave = (r: Rule) => {
     setLoading(true);
     createRule(r)
-      .catch(() => console.error('Unable to save rule'))
+      .catch(() =>
+        enqueueSnackbar("Couldn't create rule", { variant: 'error' })
+      )
       .finally(() => {
         setLoading(false);
         navigate('/rules/list');
