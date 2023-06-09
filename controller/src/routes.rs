@@ -94,8 +94,6 @@ pub async fn put_billable_rule(
         }
     };
 
-    billable_rule.id = rule_id;
-
     if billable_rule.update_from(&dto, rule_id).is_err() {
         log::error!("Error updating billable rule with id: {}", rule_id);
         return Json(None);
