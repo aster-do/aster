@@ -5,7 +5,6 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use anyhow::anyhow;
 use bills::AggregatesToBeWritten;
 use futures_util::TryFutureExt;
-use sqlx::types::chrono::{DateTime, Utc};
 use std::str::FromStr;
 
 use async_trait::async_trait;
@@ -15,7 +14,7 @@ use common::models::billable::{BillableAggregate, BillableSQL};
 
 use common::monitoring::readiness_handler;
 use common::{messaging::tokio_broadcast::CrossbeamMessagingFactory, services::AsterService};
-use log::{error, info};
+use log::{debug, error, info};
 use sqlx::{postgres::PgConnectOptions, query, query_as, PgPool};
 use tokio::time::{sleep, Duration};
 
@@ -76,18 +75,11 @@ impl BillableAggregatorService {
         Ok(results)
     }
 
-    async fn get_all_aggregates_by_tz(
-        &self,
-        timezones: Vec<DateTime<Utc>>,
-    ) -> Result<Vec<BillableAggregate>, anyhow::Error> {
-        let results = query_as!(
-            BillableAggregate,
-            "SELECT * FROM BILLABLE_AGGREGATE WHERE TIMESTAMP = ANY($1)",
-            &timezones[..]
-        )
-        .fetch_all(self.connection.as_ref().unwrap())
-        .await
-        .map_err(Box::new)?;
+    async fn get_all_aggregates(&self) -> Result<Vec<BillableAggregate>, anyhow::Error> {
+        let results = query_as!(BillableAggregate, "SELECT * FROM BILLABLE_AGGREGATE")
+            .fetch_all(self.connection.as_ref().unwrap())
+            .await
+            .map_err(Box::new)?;
 
         Ok(results)
     }
@@ -96,6 +88,9 @@ impl BillableAggregatorService {
         &self,
         aggregates: AggregatesToBeWritten,
     ) -> Result<(), anyhow::Error> {
+        debug!("Aggregates to insert: {:?}", aggregates.inserts);
+        debug!("Aggregates to update: {:?}", aggregates.updates);
+
         let mut transaction = match self.connection.as_ref() {
             None => return Err(anyhow!("No connection to database")),
             Some(connection) => connection.begin().await.map_err(Box::new)?,
@@ -138,11 +133,8 @@ impl BillableAggregatorService {
 
     pub async fn run_aggregation_pipeline(&mut self) -> Result<(), anyhow::Error> {
         let billings = self.get_raw_billings().await?;
-        let timezones = billings
-            .iter()
-            .map(|b| b.timestamp)
-            .collect::<Vec<DateTime<Utc>>>();
-        let aggregates = self.get_all_aggregates_by_tz(timezones).await?;
+
+        let aggregates = self.get_all_aggregates().await?;
 
         if billings.is_empty() {
             info!("No billings to aggregate");
