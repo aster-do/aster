@@ -112,11 +112,19 @@ Go to the project directory
   cd aster
 ```
 
+Build the frontend
+
+```bash
+  cd frontend && npm run build && cd ..
+```
+
 Run the application
 
 ```bash
   cargo run
 ```
+
+You can now access Aster frontend from [http://localhost:3030/](http://localhost:3030/).
 
 <!-- Build -->
 ### :rocket: Build
