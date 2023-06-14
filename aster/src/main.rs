@@ -4,7 +4,7 @@ use std::{
 };
 
 use axum::{routing::get, Router, Server};
-use billing::services::BillingService;
+use billing::BillingRuntime;
 use common::{services::AsterServiceError, AsterService};
 use log::{error, info};
 use tokio::join;
@@ -34,7 +34,7 @@ async fn main() -> Result<(), anyhow::Error> {
     info!("Initializing services");
     let mut services: Vec<Box<dyn AsterService>> = vec![
         Box::<frontend_server::FrontendServer>::default(),
-        Box::<BillingService>::default(),
+        Box::<BillingRuntime>::default(),
         Box::<controller::ControllerService>::default(),
         Box::<dashboard::DashboardServer>::default(),
         Box::<connector::ConnectorService>::default(),
