@@ -9,7 +9,7 @@ struct AlertingRule {
     metric_name: String,
     threshold: f64,
     trigger: RuleTrigger,
-    duration: u64,
+    grace_period: u64,
     notification_channel_ids: Vec<String>,
 }
 

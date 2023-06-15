@@ -6,7 +6,7 @@ CREATE TABLE AlertingRule (
     metric_name VARCHAR(255) NOT NULL,
     threshold DECIMAL(10, 2) NOT NULL,
     trigger VARCHAR(20) CHECK (trigger IN ('greater_than', 'less_than', 'equal', 'not_equal')) NOT NULL,
-    duration INT NOT NULL,
+    grace_period INT NOT NULL,
     notification_channel_ids TEXT
 );
 

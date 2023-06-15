@@ -27,7 +27,7 @@ impl From<AlertingRuleInput> for AlertingRule {
             metric_name: input.metric_name.unwrap_or_default(),
             threshold: input.threshold.unwrap_or_default(),
             trigger: input.trigger.unwrap_or_default().into(),
-            grace_period: input.duration.unwrap_or_default(),
+            grace_period: input.grace_period.unwrap_or_default(),
             notification_channel_ids: input.notification_channel_ids.unwrap_or_default(),
             created_at: Utc::now(),
             updated_at: Utc::now(),

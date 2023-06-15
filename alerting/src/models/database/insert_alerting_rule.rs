@@ -5,6 +5,6 @@ pub struct AlertingRuleInsert {
     pub metric_name: String,
     pub threshold: sqlx::types::BigDecimal,
     pub trigger: String,
-    pub duration: i32,
+    pub grace_period: i32,
     pub notification_channel_ids: Option<String>,
 }

@@ -9,7 +9,7 @@ pub struct AlertingRuleInput {
     pub metric_name: Option<String>,
     pub threshold: Option<f64>,
     pub trigger: Option<RuleTriggerInput>,
-    pub duration: Option<u64>,
+    pub grace_period: Option<u64>,
     pub notification_channel_ids: Option<Vec<String>>,
 }
 

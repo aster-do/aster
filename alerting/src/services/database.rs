@@ -50,19 +50,19 @@ impl DatabaseService {
             metric_name: rule.metric_name,
             threshold: BigDecimal::from_str(&rule.threshold.to_string()).unwrap(),
             trigger: rule.trigger.to_string(),
-            duration: rule.grace_period as i32,
+            grace_period: rule.grace_period as i32,
             notification_channel_ids: Some(format!("{:?}", rule.notification_channel_ids)),
         };
 
         sqlx::query!(
-            "INSERT INTO alertingrule (id, name, rule_type, metric_name, threshold, trigger, duration, notification_channel_ids) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+            "INSERT INTO alertingrule (id, name, rule_type, metric_name, threshold, trigger, grace_period, notification_channel_ids) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
             rule_to_insert.id,
             rule_to_insert.name,
             rule_to_insert.rule_type,
             rule_to_insert.metric_name,
             rule_to_insert.threshold,
             rule_to_insert.trigger,
-            rule_to_insert.duration,
+            rule_to_insert.grace_period,
             rule_to_insert.notification_channel_ids
         ).execute(
             &mut conn
@@ -109,7 +109,7 @@ impl DatabaseService {
             metric_name: rule.metric_name,
             threshold: BigDecimal::from_str(&rule.threshold.to_string()).unwrap(),
             trigger: rule.trigger.to_string(),
-            duration: rule.grace_period as i32,
+            grace_period: rule.grace_period as i32,
             notification_channel_ids: Some(format!("{:?}", rule.notification_channel_ids)),
         };
 
@@ -122,13 +122,13 @@ impl DatabaseService {
             .map_err(|e| anyhow::anyhow!("Alerting : Failed to acquire connection: {}", e))?;
 
         sqlx::query!(
-            "UPDATE alertingrule SET name = $1, rule_type = $2, metric_name = $3, threshold = $4, trigger = $5, duration = $6, notification_channel_ids = $7 WHERE id = $8",
+            "UPDATE alertingrule SET name = $1, rule_type = $2, metric_name = $3, threshold = $4, trigger = $5, grace_period = $6, notification_channel_ids = $7 WHERE id = $8",
             rule_to_update.name,
             rule_to_update.rule_type,
             rule_to_update.metric_name,
             rule_to_update.threshold,
             rule_to_update.trigger,
-            rule_to_update.duration,
+            rule_to_update.grace_period,
             rule_to_update.notification_channel_ids,
             rule_to_update.id
         ).execute(
@@ -155,7 +155,7 @@ impl DatabaseService {
             metric_name: rule.metric_name,
             threshold: rule.threshold.to_string().parse().unwrap(),
             trigger: RuleTrigger::from_string(&rule.trigger),
-            grace_period: rule.duration as u64,
+            grace_period: rule.grace_period as u64,
             notification_channel_ids: rule
                 .notification_channel_ids
                 .map(|ids| {
@@ -187,7 +187,7 @@ impl DatabaseService {
                 metric_name: rule.metric_name,
                 threshold: rule.threshold.to_string().parse().unwrap(),
                 trigger: RuleTrigger::from_string(&rule.trigger),
-                grace_period: rule.duration as u64,
+                grace_period: rule.grace_period as u64,
                 notification_channel_ids: rule
                     .notification_channel_ids
                     .map(|ids| {
