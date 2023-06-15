@@ -29,9 +29,9 @@ jobs:
             "dashboard",
             "notification",
           ]
-    env:
-      SCCACHE_GHA_ENABLED: "true"
-      RUSTC_WRAPPER: "sccache"
+    # env:
+      # SCCACHE_GHA_ENABLED: "true"
+      # RUSTC_WRAPPER: "sccache"
     steps:
       - uses: actions/checkout@v3
 
@@ -42,8 +42,10 @@ jobs:
           profile: default
           components: clippy, rustfmt
 
-      - name: Run sccache-cache
-        uses: mozilla-actions/sccache-action@v0.0.3
+      # - name: Run sccache-cache
+      #   uses: mozilla-actions/sccache-action@v0.0.3
+
+      - uses: Swatinem/rust-cache@v2
 
       - name: Format
         run: cargo fmt -p ${{ matrix.component }} -- --check --config format_code_in_doc_comments=true
