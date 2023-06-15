@@ -45,13 +45,12 @@ impl DatabaseService {
 
         let rule_to_insert = AlertingRuleInsert {
             id: rule.id.clone(),
-            name: rule.name.clone().unwrap_or_default(),
-            rule_type: rule.rule_type.unwrap_or_default().to_string(),
-            metric_name: rule.metric_name.unwrap_or_default(),
-            threshold: BigDecimal::from_str(&rule.threshold.unwrap_or_default().to_string())
-                .unwrap(),
-            trigger: rule.trigger.unwrap_or_default().to_string(),
-            duration: rule.grace_period.unwrap_or_default() as i32,
+            name: rule.name.clone(),
+            rule_type: rule.rule_type.to_string(),
+            metric_name: rule.metric_name,
+            threshold: BigDecimal::from_str(&rule.threshold.to_string()).unwrap(),
+            trigger: rule.trigger.to_string(),
+            duration: rule.grace_period as i32,
             notification_channel_ids: Some(format!("{:?}", rule.notification_channel_ids)),
         };
 
@@ -105,13 +104,12 @@ impl DatabaseService {
 
         let rule_to_update = AlertingRuleInsert {
             id: rule.id.clone(),
-            name: rule.name.unwrap_or_default(),
-            rule_type: rule.rule_type.unwrap_or_default().to_string(),
-            metric_name: rule.metric_name.unwrap_or_default(),
-            threshold: BigDecimal::from_str(&rule.threshold.unwrap_or_default().to_string())
-                .unwrap(),
-            trigger: rule.trigger.unwrap_or_default().to_string(),
-            duration: rule.grace_period.unwrap_or_default() as i32,
+            name: rule.name,
+            rule_type: rule.rule_type.to_string(),
+            metric_name: rule.metric_name,
+            threshold: BigDecimal::from_str(&rule.threshold.to_string()).unwrap(),
+            trigger: rule.trigger.to_string(),
+            duration: rule.grace_period as i32,
             notification_channel_ids: Some(format!("{:?}", rule.notification_channel_ids)),
         };
 
@@ -152,23 +150,21 @@ impl DatabaseService {
 
         Ok(rule.map(|rule| AlertingRule {
             id: rule.id,
-            name: Some(rule.name),
-            rule_type: Some(RuleType::from_string(&rule.rule_type)),
-            metric_name: Some(rule.metric_name),
-            threshold: Some(rule.threshold.to_string().parse().unwrap()),
-            trigger: Some(RuleTrigger::from_string(&rule.trigger)),
-            grace_period: Some(rule.duration as u64),
+            name: rule.name,
+            rule_type: RuleType::from_string(&rule.rule_type),
+            metric_name: rule.metric_name,
+            threshold: rule.threshold.to_string().parse().unwrap(),
+            trigger: RuleTrigger::from_string(&rule.trigger),
+            grace_period: rule.duration as u64,
             notification_channel_ids: rule
                 .notification_channel_ids
                 .map(|ids| {
-                    Some(
-                        ids[1..ids.len() - 1]
-                            .split(", ")
-                            .map(|id| id.to_string())
-                            .collect(),
-                    )
+                    ids[1..ids.len() - 1]
+                        .split(", ")
+                        .map(|id| id.to_string())
+                        .collect()
                 })
-                .unwrap_or(Some(vec![])),
+                .unwrap_or(vec![]),
             created_at: Utc::now(),
             updated_at: Utc::now(),
         }))
@@ -186,23 +182,21 @@ impl DatabaseService {
             .into_iter()
             .map(|rule| AlertingRule {
                 id: rule.id,
-                name: Some(rule.name),
-                rule_type: Some(RuleType::from_string(&rule.rule_type)),
-                metric_name: Some(rule.metric_name),
-                threshold: Some(rule.threshold.to_string().parse().unwrap()),
-                trigger: Some(RuleTrigger::from_string(&rule.trigger)),
-                grace_period: Some(rule.duration as u64),
+                name: rule.name,
+                rule_type: RuleType::from_string(&rule.rule_type),
+                metric_name: rule.metric_name,
+                threshold: rule.threshold.to_string().parse().unwrap(),
+                trigger: RuleTrigger::from_string(&rule.trigger),
+                grace_period: rule.duration as u64,
                 notification_channel_ids: rule
                     .notification_channel_ids
                     .map(|ids| {
-                        Some(
-                            ids[1..ids.len() - 1]
-                                .split(", ")
-                                .map(|id| id.to_string())
-                                .collect(),
-                        )
+                        ids[1..ids.len() - 1]
+                            .split(", ")
+                            .map(|id| id.to_string())
+                            .collect()
                     })
-                    .unwrap_or(Some(vec![])),
+                    .unwrap_or(vec![]),
                 created_at: Utc::now(),
                 updated_at: Utc::now(),
             })

@@ -7,13 +7,13 @@ use super::input::alerting_rule::{AlertingRuleInput, RuleTriggerInput, RuleTypeI
 #[derive(Debug, Default, Clone)]
 pub struct AlertingRule {
     pub id: String,
-    pub name: Option<String>,
-    pub rule_type: Option<RuleType>,
-    pub metric_name: Option<String>,
-    pub threshold: Option<f64>,
-    pub trigger: Option<RuleTrigger>,
-    pub grace_period: Option<u64>,
-    pub notification_channel_ids: Option<Vec<String>>,
+    pub name: String,
+    pub rule_type: RuleType,
+    pub metric_name: String,
+    pub threshold: f64,
+    pub trigger: RuleTrigger,
+    pub grace_period: u64,
+    pub notification_channel_ids: Vec<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -22,13 +22,13 @@ impl From<AlertingRuleInput> for AlertingRule {
     fn from(input: AlertingRuleInput) -> Self {
         Self {
             id: input.id.unwrap_or_default().to_string(),
-            name: input.name,
-            rule_type: input.rule_type.map(|rule_type| rule_type.into()),
-            metric_name: input.metric_name,
-            threshold: input.threshold,
-            trigger: input.trigger.map(|trigger| trigger.into()),
-            grace_period: input.duration,
-            notification_channel_ids: input.notification_channel_ids,
+            name: input.name.unwrap_or_default(),
+            rule_type: input.rule_type.unwrap_or_default().into(),
+            metric_name: input.metric_name.unwrap_or_default(),
+            threshold: input.threshold.unwrap_or_default(),
+            trigger: input.trigger.unwrap_or_default().into(),
+            grace_period: input.duration.unwrap_or_default(),
+            notification_channel_ids: input.notification_channel_ids.unwrap_or_default(),
             created_at: Utc::now(),
             updated_at: Utc::now(),
         }

@@ -1,4 +1,3 @@
-use anyhow::anyhow;
 use common::models::Billable;
 use log::{debug, info};
 use notification::{
@@ -61,7 +60,7 @@ impl BillableService {
             .get_rules()
             .await?
             .iter()
-            .filter(|rule| rule.metric_name == Some(billable.clone().name))
+            .filter(|rule| rule.metric_name == billable.clone().name)
         {
             if self.check_trigger(&billable, &rule.trigger, rule.threshold, &rule.rule_type)? {
                 info!("Rule triggered: {:?}", rule);
@@ -83,32 +82,26 @@ impl BillableService {
     fn check_trigger(
         &self,
         billable: &Billable,
-        trigger: &Option<RuleTrigger>,
-        threshold: Option<f64>,
-        rule_type: &Option<RuleType>,
+        trigger: &RuleTrigger,
+        threshold: f64,
+        rule_type: &RuleType,
     ) -> Result<bool, anyhow::Error> {
         let sum = self
             .billables
             .iter()
             .filter(|b| b.billable.name == billable.name)
             .map(|b| match rule_type {
-                Some(RuleType::PriceBased) => b.billable.price as f64,
-                Some(RuleType::ValueBased) => b.billable.value,
-                None => 0.0,
+                RuleType::PriceBased => b.billable.price as f64,
+                RuleType::ValueBased => b.billable.value,
             })
             .reduce(|a, b| a + b)
             .unwrap_or_default();
 
-        if let Some(threshold) = threshold {
-            match trigger {
-                Some(RuleTrigger::GreaterThan) => Ok(sum > threshold),
-                Some(RuleTrigger::LessThan) => Ok(sum < threshold),
-                Some(RuleTrigger::Equal) => Ok(sum == threshold),
-                Some(RuleTrigger::NotEqual) => Ok(sum != threshold),
-                None => Err(anyhow!("Rule trigger not set when trying to check rule")),
-            }
-        } else {
-            Err(anyhow!("Rule threshold not set when trying to check rule"))
+        match trigger {
+            RuleTrigger::GreaterThan => Ok(sum > threshold),
+            RuleTrigger::LessThan => Ok(sum < threshold),
+            RuleTrigger::Equal => Ok(sum == threshold),
+            RuleTrigger::NotEqual => Ok(sum != threshold),
         }
     }
 }
@@ -127,9 +120,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_check_trigger_greater_than() -> Result<(), anyhow::Error> {
-        let trigger = Some(RuleTrigger::GreaterThan);
-        let threshold = Some(12.0);
-        let rule_type = Some(RuleType::ValueBased);
+        let trigger = RuleTrigger::GreaterThan;
+        let threshold = 12.0;
+        let rule_type = RuleType::ValueBased;
 
         let incoming_billable = Billable {
             name: "test".to_string(),
@@ -178,9 +171,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_check_not_trigger_greater_than() -> Result<(), anyhow::Error> {
-        let trigger = Some(RuleTrigger::GreaterThan);
-        let threshold = Some(12.0);
-        let rule_type = Some(RuleType::ValueBased);
+        let trigger = RuleTrigger::GreaterThan;
+        let threshold = 12.0;
+        let rule_type = RuleType::ValueBased;
 
         let incoming_billable = Billable {
             name: "test".to_string(),
@@ -229,9 +222,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_check_trigger_less_than() -> Result<(), anyhow::Error> {
-        let trigger = Some(RuleTrigger::LessThan);
-        let threshold = Some(32.0);
-        let rule_type = Some(RuleType::ValueBased);
+        let trigger = RuleTrigger::LessThan;
+        let threshold = 32.0;
+        let rule_type = RuleType::ValueBased;
 
         let incoming_billable = Billable {
             name: "test".to_string(),
@@ -280,9 +273,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_check_trigger_equal() -> Result<(), anyhow::Error> {
-        let trigger = Some(RuleTrigger::Equal);
-        let threshold = Some(22.0);
-        let rule_type = Some(RuleType::ValueBased);
+        let trigger = RuleTrigger::Equal;
+        let threshold = 22.0;
+        let rule_type = RuleType::ValueBased;
 
         let incoming_billable = Billable {
             name: "test".to_string(),
@@ -331,9 +324,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_check_trigger_not_equal() -> Result<(), anyhow::Error> {
-        let trigger = Some(RuleTrigger::NotEqual);
-        let threshold = Some(12.0);
-        let rule_type = Some(RuleType::ValueBased);
+        let trigger = RuleTrigger::NotEqual;
+        let threshold = 12.0;
+        let rule_type = RuleType::ValueBased;
 
         let incoming_billable = Billable {
             name: "test".to_string(),
@@ -382,9 +375,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_check_trigger_different_names() -> Result<(), anyhow::Error> {
-        let trigger = Some(RuleTrigger::GreaterThan);
-        let threshold = Some(12.0);
-        let rule_type = Some(RuleType::ValueBased);
+        let trigger = RuleTrigger::GreaterThan;
+        let threshold = 12.0;
+        let rule_type = RuleType::ValueBased;
 
         let incoming_billable = Billable {
             name: "test".to_string(),
@@ -433,9 +426,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_check_trigger_price_based() -> Result<(), anyhow::Error> {
-        let trigger = Some(RuleTrigger::GreaterThan);
-        let threshold = Some(12.0);
-        let rule_type = Some(RuleType::PriceBased);
+        let trigger = RuleTrigger::GreaterThan;
+        let threshold = 12.0;
+        let rule_type = RuleType::PriceBased;
 
         let incoming_billable = Billable {
             name: "test".to_string(),

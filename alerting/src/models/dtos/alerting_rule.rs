@@ -21,13 +21,13 @@ impl From<AlertingRule> for AlertingRuleDTO {
     fn from(value: AlertingRule) -> Self {
         Self {
             id: value.id.into(),
-            name: value.name,
-            rule_type: value.rule_type.map(|rt| rt.into()),
-            metric_name: value.metric_name,
-            threshold: value.threshold,
-            trigger: value.trigger.map(|t| t.into()),
-            duration: value.grace_period,
-            notification_channel_ids: value.notification_channel_ids,
+            name: Some(value.name),
+            rule_type: Some(value.rule_type.into()),
+            metric_name: Some(value.metric_name),
+            threshold: Some(value.threshold),
+            trigger: Some(value.trigger.into()),
+            duration: Some(value.grace_period),
+            notification_channel_ids: Some(value.notification_channel_ids),
             created_at: value.created_at.to_rfc3339(),
             updated_at: value.updated_at.to_rfc3339(),
         }

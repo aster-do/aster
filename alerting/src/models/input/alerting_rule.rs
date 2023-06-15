@@ -13,14 +13,16 @@ pub struct AlertingRuleInput {
     pub notification_channel_ids: Option<Vec<String>>,
 }
 
-#[derive(Debug, Enum, Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, Enum, Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub enum RuleTypeInput {
     ValueBased,
+    #[default]
     PriceBased,
 }
 
-#[derive(Debug, Enum, Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Default, Enum, Copy, Clone, Eq, PartialEq, Serialize, Deserialize)]
 pub enum RuleTriggerInput {
+    #[default]
     GreaterThan,
     LessThan,
     Equal,
