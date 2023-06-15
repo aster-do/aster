@@ -39,7 +39,7 @@ export default function InvoiceCard({ billing }: BillingCardProps) {
                 maxWidth={200}
                 minWidth={200}
               >
-                {`Date : ${Date.parse(billing.generated_at).toString()}`}
+                {`Date : ${Date.parse(billing.generatedAt).toString()}`}
               </Typography>
             </Grid>
             <Grid item>

@@ -24,10 +24,17 @@ export function useInvoices(): {
 } {
   const graphqlQuery = {
     query: `{
-        allBillings {
+      billing {
           id
-          generated_at          
-          items
+          generatedAt          
+          items {
+            id
+            name
+            timestamp
+            treated
+            value
+            price
+          }
         }
       }`,
     variables: {},
@@ -48,7 +55,7 @@ export function useInvoices(): {
     );
     invoicesData.push({
       group: 'invoices',
-      date: invoice.generated_at,
+      date: invoice.generatedAt,
       surplus: 0,
       value: totalPrice,
     });

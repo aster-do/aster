@@ -13,6 +13,6 @@ export type Billing = BillingDTO & {
 
 export type BillingDTO = {
   id: string;
-  generated_at: string;
+  generatedAt: string;
   items: BillingItem[];
 };
