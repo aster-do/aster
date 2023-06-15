@@ -1,8 +1,9 @@
-use async_graphql::{SimpleObject, ID};
+use async_graphql::{InputObject, SimpleObject, ID};
 use chrono::Utc;
 use common::models::BillableSQL;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, SimpleObject)]
+#[derive(Debug, Clone, SimpleObject, InputObject, Serialize, Deserialize)]
 pub struct Billable {
     pub id: ID,
     pub name: String,
@@ -10,6 +11,12 @@ pub struct Billable {
     pub timestamp: chrono::DateTime<Utc>,
     pub value: f64,
     pub treated: bool,
+}
+#[derive(Debug, InputObject, Serialize, Deserialize)]
+pub struct BillingInput {
+    pub id: i32,
+    pub generated_at: Option<chrono::DateTime<Utc>>,
+    pub items: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, SimpleObject)]
@@ -30,4 +37,11 @@ impl From<BillableSQL> for Billable {
             treated: persistence.treated,
         }
     }
+}
+
+#[derive(Debug)]
+pub struct BillingPersistence {
+    pub id: i32,
+    pub generated_at: chrono::DateTime<Utc>,
+    pub items: Option<String>, // json
 }

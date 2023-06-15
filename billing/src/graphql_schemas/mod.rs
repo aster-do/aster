@@ -1,85 +1,103 @@
-pub mod structures;
+use std::sync::Arc;
 
+use crate::models::{Billing, BillingInput};
 use async_graphql::{EmptySubscription, Schema, ID};
 use chrono::Utc;
-use structures::{Billable, Billing};
 
 use crate::services::database::DatabaseService;
 
 pub type BillingSchema = Schema<QueryRoot, MutationRoot, EmptySubscription>;
 
-pub struct QueryRoot;
+pub struct QueryRoot {
+    pub database_service: Arc<DatabaseService>,
+}
 
 #[async_graphql::Object]
 impl QueryRoot {
-    async fn billing(&self, id: Option<ID>) -> Vec<Billing> {
-        let database_service = DatabaseService::new().await;
+    async fn billing(&self, id: Option<ID>) -> anyhow::Result<Vec<Billing>> {
         match id {
             Some(id) => {
                 let id = id.to_string().parse::<i32>().unwrap();
-                database_service
+                Ok(self
+                    .database_service
                     ._get_billing(id)
                     .await
-                    .unwrap()
+                    .map_err(|e| anyhow::anyhow!("Billing : Failed to fetch billing: {}", e))?
                     .into_iter()
-                    .collect()
+                    .collect())
             }
-            None => database_service
+            None => Ok(self
+                .database_service
                 ._get_billings()
                 .await
-                .unwrap()
+                .map_err(|e| anyhow::anyhow!("Billing : Failed to fetch all billings: {}", e))?
                 .into_iter()
-                .collect(),
+                .collect()),
         }
     }
 }
 
-pub struct MutationRoot;
+pub struct MutationRoot {
+    pub database_service: Arc<DatabaseService>,
+}
 
 #[async_graphql::Object]
 impl MutationRoot {
-    async fn generate_billing(&self, _date: Option<chrono::DateTime<Utc>>) -> Billing {
-        // TODO: Generate the billing from the database
+    async fn billing(&self, billing: BillingInput) -> anyhow::Result<Billing> {
+        let database_service = self.database_service.as_ref();
 
-        let id = ID::from("1".to_string());
-        let generated_at = Utc::now();
-        let items = vec![
-            Billable {
-                id: "3".into(),
-                name: "memory".into(),
-                price: 199,
-                timestamp: chrono::DateTime::parse_from_rfc3339("2023-06-06T13:23:04+00:00")
-                    .unwrap()
-                    .with_timezone(&Utc),
-                treated: false,
-                value: 1.0,
-            },
-            Billable {
-                id: "4".into(),
-                name: "cpu".into(),
-                price: 199,
-                timestamp: chrono::DateTime::parse_from_rfc3339("2023-06-06T13:23:04+00:00")
-                    .unwrap()
-                    .with_timezone(&Utc),
-                treated: false,
-                value: 3.5,
-            },
-            Billable {
-                id: "5".into(),
-                name: "cpu".into(),
-                price: 230,
-                timestamp: chrono::DateTime::parse_from_rfc3339("2023-06-06T13:23:04+00:00")
-                    .unwrap()
-                    .with_timezone(&Utc),
-                treated: false,
-                value: 4.0,
-            },
-        ];
-
-        Billing {
-            id,
-            generated_at,
-            items,
+        if let Some(_billing) = database_service._get_billing(billing.id).await? {
+            let updated_billing = Billing {
+                id: billing.id.into(),
+                generated_at: match billing.generated_at {
+                    Some(generated_at) => generated_at,
+                    None => _billing.generated_at,
+                },
+                items: match billing.items {
+                    Some(items) => {
+                        let mut billables = Vec::new();
+                        for item in items {
+                            let billable = database_service
+                                ._get_billable(item.parse::<i32>()?)
+                                .await?
+                                .ok_or_else(|| anyhow::anyhow!("Billing : Billable not found"))?;
+                            billables.push(billable);
+                        }
+                        billables
+                    }
+                    None => _billing.items,
+                },
+            };
+            database_service
+                ._update_billing(billing.id, updated_billing.clone())
+                .await?;
+            Ok(updated_billing)
+        } else {
+            database_service
+                ._create_billing(Billing {
+                    id: billing.id.into(),
+                    generated_at: match billing.generated_at {
+                        Some(generated_at) => generated_at,
+                        None => Utc::now(),
+                    },
+                    items: match billing.items {
+                        Some(items) => {
+                            let mut billables = Vec::new();
+                            for item in items {
+                                let billable = database_service
+                                    ._get_billable(item.parse::<i32>()?)
+                                    .await?
+                                    .ok_or_else(|| {
+                                        anyhow::anyhow!("Billing : Billable not found")
+                                    })?;
+                                billables.push(billable);
+                            }
+                            billables
+                        }
+                        None => Vec::new(),
+                    },
+                })
+                .await
         }
     }
 }

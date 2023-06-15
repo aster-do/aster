@@ -1,10 +1,7 @@
+use crate::models::{Billable, Billing, BillingPersistence};
+use anyhow::anyhow;
 use async_graphql::ID;
 use sqlx::postgres::{PgPool, PgPoolOptions};
-
-use crate::{
-    db_models::BillingPersistence,
-    graphql_schemas::structures::{Billable, Billing},
-};
 
 use common::models::billable::BillableSQL;
 
@@ -14,17 +11,20 @@ pub struct DatabaseService {
 }
 
 impl DatabaseService {
-    pub async fn new() -> Self {
+    pub async fn new() -> anyhow::Result<Self> {
         let pool = match PgPoolOptions::new()
             .max_connections(100)
-            .connect("postgres://postgres:postgres@localhost:5434/postgres") // Tochange 5432
+            .connect(
+                &std::env::var("DATABASE_URL")
+                    .unwrap_or("postgres://postgres:postgres@localhost:5432/postgres".to_string()),
+            )
             .await
         {
             Ok(_pool) => Some(_pool),
-            Err(_) => None,
+            Err(e) => return Err(anyhow!("Billing : Failed to connect to database: {}", e)),
         };
 
-        Self { _pool: pool }
+        Ok(Self { _pool: pool })
     }
 
     pub async fn _create_billing(&self, billing: Billing) -> anyhow::Result<Billing> {
@@ -127,7 +127,11 @@ impl DatabaseService {
     pub async fn _get_billings(&self) -> anyhow::Result<Vec<Billing>> {
         let billings_persistence_list: Vec<BillingPersistence> =
             sqlx::query_as!(BillingPersistence, "SELECT * FROM billing")
-                .fetch_all(self._pool.as_ref().unwrap())
+                .fetch_all(
+                    self._pool
+                        .as_ref()
+                        .ok_or_else(|| anyhow::anyhow!("Billing : No pool found"))?,
+                )
                 .await
                 .map_err(|e| anyhow::anyhow!("Billing : Failed to fetch rule: {}", e))?;
 
@@ -168,7 +172,11 @@ impl DatabaseService {
             "SELECT * FROM billing WHERE id = $1",
             billing_id
         )
-        .fetch_optional(self._pool.as_ref().unwrap())
+        .fetch_optional(
+            self._pool
+                .as_ref()
+                .ok_or_else(|| anyhow::anyhow!("Billing : No pool found"))?,
+        )
         .await
         .map_err(|e| anyhow::anyhow!("Billing : Failed to fetch rule: {}", e))?;
 
