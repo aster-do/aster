@@ -28,6 +28,7 @@ pub struct Billing {
 
 impl From<BillableSQL> for Billable {
     fn from(persistence: BillableSQL) -> Self {
+        println!("test");
         Billable {
             id: persistence.id.to_string().into(),
             name: persistence.name,
